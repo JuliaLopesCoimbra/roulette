@@ -42,3 +42,19 @@ body {
 .button-glow {
   animation: pulse-button 1.8s ease-in-out infinite;
 }
+@keyframes pulse-strong {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: inset 0 0 14px rgba(43, 43, 43, 0.6),
+                0 0 30px rgba(139, 92, 246, 0.8); /* roxo */
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: inset 0 0 20px rgba(248, 236, 8, 0.1),
+                0 0 50px rgb(250, 222, 0.1);
+  }
+}
+
+.animate-pulse-strong {
+  animation: pulse-strong 1.5s infinite ease-in-out;
+}

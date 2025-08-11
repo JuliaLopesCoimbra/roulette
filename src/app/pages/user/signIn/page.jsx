@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import Header from "@/app/components/header/HeaderWithOutButtons";
+import Header from "../../../../components/header/Header";
 
 export default function signIn() {
     const router = useRouter();
@@ -26,7 +26,7 @@ export default function signIn() {
         if (response === true) {
             toast.success("Cadastro realizado com sucesso!");
             reset();
-            router.push(`/pages/video`);
+            router.push(`/pages/user/dashboard`);
         }
     };
 
@@ -45,7 +45,9 @@ export default function signIn() {
             <motion.div
                 {...fadeIn(0)}
                 className="min-h-screen flex items-center justify-center px-4 font-[Roboto]"
-                style={{ background: "#1f1f1f" }}
+              style={{
+        background: "radial-gradient(circle at center, #5a5a5a 0%, #0b1f3a 100%)"
+      }}
             >
                 <form
                     onSubmit={handleSubmit(onSubmit)}
@@ -85,16 +87,16 @@ export default function signIn() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="px-4 py-2 bg-[#facc15] text-black rounded hover:bg-[#e0b80f] transition font-semibold"
+                            className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold"
                         >
                             {isSubmitting ? "Entrando..." : "Entrar"}
                         </button>
 
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-100">
                             Não tem conta?{" "}
                             <a
-                                href="/pages/signUp"
-                                className="text-yellow-600 font-semibold hover:underline"
+                                href="/pages/user/signUp"
+                                className="text-[#973bfe] font-semibold hover:underline"
                             >
                                 Registre-se
                             </a>

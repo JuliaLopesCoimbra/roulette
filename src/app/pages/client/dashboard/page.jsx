@@ -1,12 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import Ads from "@/app/components/client/Ads/Ads";
-import Analytics from "@/app/components/client/Analytics/Analytics";
-import Principal from "@/app/components/client/Principal/Principal";
-import Profile from "@/app/components/client/Profile/Profile";
-import Chart from "@/app/components/client/Chart/Chart";
-
-
+import Ads from "@/components/client/Ads/Ads";
+import Analytics from "@/components/client/Analytics/Analytics";
+import Principal from "@/components/client/Principal/Principal";
+import Profile from "@/components/client/Profile/Profile";
+import Chart from "@/components/client/Chart/Chart";
 
 export default function Dashboard() {
     const [selected, setSelected] = useState("inicio");
@@ -19,7 +17,7 @@ export default function Dashboard() {
                 return <Ads />;
             case "dashboard":
                 return <Chart />;
-                case "analytics":
+            case "analytics":
                 return <Analytics />;
             case "perfil":
                 return <Profile />;
@@ -29,9 +27,9 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="flex min-h-screen" style={{ background: "#1f1f1f" }}>
+        <div className="flex h-screen overflow-hidden" style={{ background: "#1f1f1f" }}>
             {/* Sidebar */}
-            <div className="w-64 bg-[#2c2c2e] text-white flex flex-col p-6 space-y-4">
+            <div className="w-64 bg-[#2c2c2e] text-white flex flex-col p-6 space-y-4 flex-shrink-0">
                 <h2 className="text-xl font-bold mb-4">Painel</h2>
                 <button
                     onClick={() => setSelected("inicio")}
@@ -75,9 +73,8 @@ export default function Dashboard() {
                 </button>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 p-8 text-white overflow-y-auto">
-               
+            {/* Main Content - Scrollável */}
+            <div className="flex-1 overflow-y-auto p-8 text-white">
                 <h1 className="text-3xl font-bold mb-6 capitalize">{selected}</h1>
                 {renderComponent()}
             </div>

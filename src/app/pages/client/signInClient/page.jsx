@@ -29,8 +29,6 @@ export default function signInClient() {
             router.push(`/pages/client/dashboard`);
         }
     };
-
-  
     const fadeIn = (delay = 0) => ({
         initial: { opacity: 0, y: 20 },
         animate: { opacity: 1, y: 0 },
@@ -85,7 +83,7 @@ export default function signInClient() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="px-4 py-2 bg-[#facc15] text-black rounded hover:bg-[#e0b80f] transition font-semibold"
+                            className="px-4 py-2 bg-[#973bfe] text-black rounded hover:bg-[#e0b80f] transition font-semibold"
                         >
                             {isSubmitting ? "Entrando..." : "Entrar"}
                         </button>

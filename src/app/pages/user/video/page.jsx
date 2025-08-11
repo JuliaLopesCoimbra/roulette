@@ -3,7 +3,7 @@
 
 import fs from "fs";
 import path from "path";
-import VideoCenterPage from "@/app/components/video/video";
+import VideoCenterPage from "../../../../components/video/video";
 
 export default async function Video() {
     const videoDir = path.join(process.cwd(), "public", "video");
