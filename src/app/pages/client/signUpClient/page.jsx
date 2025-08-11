@@ -2,10 +2,8 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import Header from "@/app/components/header/HeaderWithOutButtons";
-import SuccessAnimation from "@/app/components/successAnimation/SuccessAnimation";
+import SuccessAnimation from "../../../../components/successAnimation/SuccessAnimation";
 export default function SignUpEmpresa() {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);

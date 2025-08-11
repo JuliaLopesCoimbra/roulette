@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import Header from "@/app/components/header/HeaderWithOutButtons";
+import Header from "../../../../components/header/HeaderWithOutButtons";
 
 export default function signInClient() {
     const router = useRouter();
