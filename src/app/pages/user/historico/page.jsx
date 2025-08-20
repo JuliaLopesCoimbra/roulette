@@ -19,29 +19,29 @@ export default function Dashboard() {
         email: "julia@email.com",
         brindes: [
             // Hoje
-            { data: "07/08/2025 09:00", premio: "AirPods Pro" },
-            { data: "07/08/2025 12:00", premio: "IFood 10%" },
-            { data: "07/08/2025 15:00", premio: "Pix R$100,00" },
+            { data: "16/08/2025 09:00", premio: "AirPods Pro" },
+            { data: "16/08/2025 12:00", premio: "IFood 10%" },
+            { data: "16/08/2025 15:00", premio: "Pix R$100,00" },
 
             // Ontem
-            { data: "08/08/2025 09:00", premio: "IFood 10%" },
-            { data: "08/08/2025 12:00", premio: "Pix R$100,00" },
-            { data: "08/08/2025 15:00", premio: "100% Adidas" },
+            { data: "17/08/2025 09:00", premio: "IFood 10%" },
+            { data: "17/08/2025 12:00", premio: "Pix R$100,00" },
+            { data: "17/08/2025 15:00", premio: "100% Adidas" },
 
             // 2 dias atrás
-            { data: "09/08/2025 09:00", premio: "20% Nike" },
-            { data: "09/08/2025 12:00", premio: "Pix R$100,00" },
-            { data: "09/08/2025 15:00", premio: "50% Shoppe" },
+            { data: "18/08/2025 09:00", premio: "20% Nike" },
+            { data: "18/08/2025 12:00", premio: "Pix R$100,00" },
+            { data: "18/08/2025 15:00", premio: "50% Shoppe" },
 
             // 3 dias atrás
-            { data: "10/08/2025 09:00", premio: "Pix R$100,00" },
-            { data: "10/08/2025 12:00", premio: "AirPods Pro" },
-            { data: "10/08/2025 15:00", premio: "10% PSN" },
+            { data: "19/08/2025 09:00", premio: "Pix R$100,00" },
+            { data: "19/08/2025 12:00", premio: "AirPods Pro" },
+            { data: "19/08/2025 15:00", premio: "10% PSN" },
 
             // 4 dias atrás
-            { data: "11/08/2025 09:00", premio: "AirPods Pro" },
-            { data: "11/08/2025 12:00", premio: "100% Adidas" },
-            { data: "11/08/2025 15:00", premio: "Pix R$100,00" }
+            { data: "20/08/2025 09:00", premio: "AirPods Pro" },
+            { data: "20/08/2025 12:00", premio: "100% Adidas" },
+            { data: "20/08/2025 15:00", premio: "Pix R$100,00" }
         ]
 
     });
