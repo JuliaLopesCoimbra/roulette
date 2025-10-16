@@ -21,6 +21,7 @@ export default function Roulette() {
   const [showCooldownMessage, setShowCooldownMessage] = useState(false);
   const [showOfferButton, setShowOfferButton] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
+  
    useEffect(() => {
     setLimitReached(!canSpinByDailyLimit());
   }, []);
@@ -103,6 +104,7 @@ export default function Roulette() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6, delay },
   });
+
   useEffect(() => {
     if (showAdModal) {
       setAdCountdown(5);
