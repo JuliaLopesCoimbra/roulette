@@ -2,63 +2,53 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-
 export default function VideoCenterPage({ videoSrc }) {
   const videoRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
-    const video = videoRef.current;
+    const v = videoRef.current;
+    if (!v) return;
 
-    const handleEnded = () => router.push("/pages/user/roulette");
+    // força autoplay
+    v.muted = true;
+    v.playsInline = true;
+    const tryPlay = () => v.play().catch(() => {});
+    tryPlay();
 
-    const handleTimeUpdate = () => {
-      if (video?.duration) {
-        const percent = (video.currentTime / video.duration) * 100;
-        setProgress(percent);
-      }
+    const onEnded = () => router.push("/pages/user/roulette");
+    const onTimeUpdate = () => {
+      if (v.duration) setProgress((v.currentTime / v.duration) * 100);
+    };
+    const onPause = () => setTimeout(() => v.play().catch(() => {}), 0);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") tryPlay();
     };
 
-    const handleVisibilityChange = () => {
-      if (video) {
-        if (document.visibilityState === "visible") {
-          video.play().catch(() => console.warn("Autoplay bloqueado."));
-        } else {
-          video.pause();
-        }
-      }
-    };
-
-    if (video) {
-      video.muted = false;
-      video.play().catch(() => console.warn("Autoplay com som pode ter sido bloqueado."));
-
-      video.addEventListener("ended", handleEnded);
-      video.addEventListener("timeupdate", handleTimeUpdate);
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-    }
+    v.addEventListener("ended", onEnded);
+    v.addEventListener("timeupdate", onTimeUpdate);
+    v.addEventListener("pause", onPause);
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      if (video) {
-        video.removeEventListener("ended", handleEnded);
-        video.removeEventListener("timeupdate", handleTimeUpdate);
-      }
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      v.removeEventListener("ended", onEnded);
+      v.removeEventListener("timeupdate", onTimeUpdate);
+      v.removeEventListener("pause", onPause);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, []);
-
-  const togglePlayPause = () => {
-    const video = videoRef.current;
-    if (video) {
-      video.paused ? video.play() : video.pause();
-    }
-  };
+  }, [router]);
 
   return (
-    <div className="relative h-screen w-screen bg-black overflow-hidden">
-
-      {/* 🔝 Barra de Progresso no Topo */}
+    <div
+      className="fixed inset-0 z-50 bg-black overflow-hidden"
+      style={{
+        touchAction: "none",
+        WebkitUserSelect: "none",
+        userSelect: "none",
+      }}
+    >
+      {/* 🔝 Barra de Progresso */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gray-700 z-20">
         <div
           className="h-full bg-[#973bfe] transition-all duration-100"
@@ -66,16 +56,25 @@ export default function VideoCenterPage({ videoSrc }) {
         />
       </div>
 
-      {/* 🎥 Vídeo em Tela Cheia */}
+      {/* 🎥 Vídeo fixo, sem qualquer UI */}
       <video
         ref={videoRef}
         src={videoSrc}
         autoPlay
-        muted={false}
-        loop={false}
+        muted
+        playsInline
+        disablePictureInPicture
+        disableRemotePlayback
         controls={false}
-        onClick={togglePlayPause}
-        className="absolute top-0 left-0 w-full h-full object-cover cursor-pointer"
+        controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
+        tabIndex={-1}
+        onContextMenu={(e) => e.preventDefault()}
+        className="absolute top-0 left-0 w-full h-full object-cover pointer-events-none select-none"
+        style={{
+          WebkitUserSelect: "none",
+          userSelect: "none",
+          WebkitTouchCallout: "none",
+        }}
       />
     </div>
   );

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import SuccessAnimation from "../../../../components/successAnimation/SuccessAnimation";
+import SuccessAnimation from "../../../../components/feedback/SuccessAnimation";
 export default function SignUpEmpresa() {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +77,7 @@ export default function SignUpEmpresa() {
     });
 
     return (
-        <div className="min-h-screen w-full overflow-x-hidden font-[Bangers] ">
+        <div className="min-h-screen w-full overflow-x-hidden  ">
             <div className="absolute top-10 left-10 p-4 z-10">
                 <button
                     onClick={() => router.back()}

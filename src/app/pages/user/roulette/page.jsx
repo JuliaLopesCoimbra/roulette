@@ -134,8 +134,9 @@ export default function Roulette() {
     <div
       className="flex flex-col items-center justify-center min-h-screen  z-20"
       style={{
-        background: "radial-gradient(circle at center, #5a5a5a 0%, #0b1f3a 100%)"
-      }}
+          background:
+            "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
+        }}
     >
       <motion.div
         {...fadeIn(0)}
@@ -178,8 +179,8 @@ export default function Roulette() {
             }
             className={`
     absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
-    w-[12vh] h-[12vh] bg-yellow-600 text-white rounded-full
-    hover:bg-yellow-700 animate-shine button-glow
+    w-[12vh] h-[12vh] bg-violet-600 text-white rounded-full
+    hover:bg-violet-700 animate-shine button-glow
     z-[10] tracking-wider transition-opacity duration-300
     flex items-center justify-center text-center text-[3vh]
     ${isSpinning || loading
@@ -213,7 +214,7 @@ export default function Roulette() {
               </p>
               <button
                 onClick={() => comeBack()}
-                className="mt-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow-md transition"
+                className="mt-2 px-4 py-2 bg-violet-600 text-white rounded hover:bg-violet-700 shadow-md transition"
               >
                 Voltar
               </button>
@@ -243,7 +244,12 @@ export default function Roulette() {
                                 0 9px 100px rgba(22, 22, 22, 2)
                               `
                 ,
-                background: "radial-gradient(circle at center, #5a5a5a 0%, #0b1f3a 80%)"
+                background: `
+    radial-gradient(1000px 600px at 15% 15%, rgba(124,58,237,0.25), transparent 60%),
+    radial-gradient(900px 500px at 85% 25%, rgba(34,211,238,0.18), transparent 60%),
+    radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%),
+    radial-gradient(circle at center, rgba(10,15,35,0.95) 0%, rgba(15,23,42,1) 100%)
+  `,
 
               }}
 
@@ -283,7 +289,7 @@ export default function Roulette() {
 
               <button
                 onClick={() => setShowModal(false)}
-                className="mt-2 px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-full shadow-md transition-all"
+                className="mt-2 px-6 py-2 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-full shadow-md transition-all"
               >
                 Fechar
               </button>

@@ -1,239 +1,245 @@
 "use client";
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import dayjs from "dayjs";
-import "react-datepicker/dist/react-datepicker.css";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { FaBars } from "react-icons/fa";
+import { Menu, LogOut, History, Gift, ChevronRight, Clock } from "lucide-react";
 import { getBrindesDeHoje } from "../../../../utils/brindesStorage";
-dayjs.extend(customParseFormat);
-// Ativa os plugins
+import { getUserToken, clearUserToken } from "../../../../utils/auth";
+
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-// Define fuso horário de Brasília como padrão
 const TIMEZONE = "America/Sao_Paulo";
+
+// util de data
+function formatZ(dt) {
+  // aceita string ISO/UTC armazenada
+  return dayjs.utc(dt).tz(TIMEZONE).format("DD/MM/YYYY HH:mm");
+}
+
 export default function Dashboard() {
-    const router = useRouter();
-    const [menuOpen, setMenuOpen] = useState(false);
-    const hoje = dayjs().format("YYYY-MM-DD");
-    // mudar a parte de localstorage dos premios ganhados hj
-    const [user] = useState({
-        nome: "Julia Lopes",
-        email: "julia@email.com",
-    });
-    const navigate = (path) => {
-        setMenuOpen(false);
-        router.push(path);
-    };
-    const [brindesHoje, setBrindesHoje] = useState([]);
-    // Próximo horário em função do último brinde (que não seja "Nada")
-    const proximoHorario = useMemo(() => {
-        const ultimoValido = [...brindesHoje]
-            .filter((b) => b.premio !== "Nada")
-            .sort((a, b) => dayjs(b.data).valueOf() - dayjs(a.data).valueOf())[0];
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [brindesHoje, setBrindesHoje] = useState([]);
+  const [user, setUser] = useState(null);
 
-        if (!ultimoValido) return null;
+useEffect(() => {
+  const tok = getUserToken();
+  if (!tok) {
+    router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
+    return;
+  }
 
-        const dataUltimo = dayjs(ultimoValido.data);
-        const diff = dayjs().diff(dataUltimo, "minute");
-        const minutosRestantes = 180 - diff; // 3h
-        return minutosRestantes > 0 ? minutosRestantes : null;
-    }, [brindesHoje]);
-    // Tentativas restantes no dia (qualquer giro conta, inclusive "Nada")
-    const tentativasRestantes = useMemo(() => {
-        const usados = Array.isArray(brindesHoje) ? brindesHoje.length : 0;
-        return Math.max(0, 3 - usados);
-    }, [brindesHoje]);
-    // Carrega do localStorage ao abrir a página
-    useEffect(() => {
-        setBrindesHoje(getBrindesDeHoje());
-    }, []);
-    return (
-        <div className="min-h-screen p-4 text-gray-100" style={{
-            background: "radial-gradient(circle at center, #cfcfcf 0%, #3a5f8a 100%)"
-        }}
-        >
-            <header className="relative flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-4">
-                    <button
-                        onClick={() => setMenuOpen(true)}
-                        className="text-white text-2xl p-2 rounded hover:bg-gray-700 transition"
-                    >
-                        <FaBars />
-                    </button>
-
-                    <div>
-                        <h1 className="text-xl font-semibold text-white">Julia Lopes</h1>
-                        <p className="text-sm text-gray-300">julia@email.com</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center space-x-2 border border-amber-500 text-white px-6 py-2 rounded-lg shadow">
-                    <img src="/img/creditos.png" alt="Créditos" className="w-8 h-8 object-contain" />
-                    <p className="font-bold text-2xl">{tentativasRestantes}</p>
-
-                </div>
-            </header>
+  // busca informações do usuário logado
+  import("../../../../utils/api").then(({ api }) => {
+    api.me()
+      .then((data) => setUser({
+        nome: data.name || "Usuário",
+        email: data.email || "",
+        avatarUrl: "/img/avatar.jpg", // opcional: futuramente pode vir da API
+      }))
+      .catch((err) => {
+        console.error("Erro ao buscar perfil:", err);
+        clearUserToken();
+        router.replace("/pages/user/signIn");
+      });
+  });
+}, [router]);
 
 
-         <section className="mb-12">
-  {brindesHoje.length >= 3 ? (
-    // Botão alternativo quando atingiu o limite
-    <button
-      disabled
-      className="w-full py-4 bg-gray-900 text-white font-bold rounded-xl shadow-lg cursor-not-allowed text-[2.5vh]"
-    //   style={{
-    //     boxShadow: `
-    //       inset 0 0 14px rgba(43, 43, 43, 0.6),
-    //       0 9px 100px rgba(22, 22, 22, 0.8)
-    //     `,
-    //   }}
-    >
-      🚫 Limite de giros atingido
-    </button>
-  ) : (
-    // Botão normal para girar
-    <button
-      onClick={() => router.push("/pages/user/video")}
-      className="animate-pulse-strong w-full py-4 bg-gray-800 text-white font-bold rounded-xl shadow-lg hover:bg-purple-900 hover:scale-[1.02] transition-all duration-300 text-[2.5vh]"
-      style={{
-        boxShadow: `
-          inset 0 0 14px rgba(43, 43, 43, 0.6),
-          0 9px 100px rgba(22, 22, 22, 0.8)
-        `,
-      }}
-    >
-      🎲 Girar a Roleta
-    </button>
-  )}
-</section>
+  // carrega histórico do dia
+  useEffect(() => { setBrindesHoje(getBrindesDeHoje()); }, []);
 
+  // proteção client-side (redundância ao middleware)
+  useEffect(() => {
+    const tok = getUserToken();
+    if (!tok) router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
+  }, [router]);
 
-            <section className="rounded-xl shadow " style={{
-                boxShadow: `
-                                inset 0 0 14px rgba(43, 43, 43, 0.6),
-                                0 9px 100px rgba(22, 22, 22, 0.8)
-                              `
-                ,
-            }}>
-                {/* Status do dia de hoje */}
-                <div className=" bg-gray-800 border border-gray-700 rounded-xl px-4 py-4 text-[2.7vh] text-white">
-                    {brindesHoje.length === 0 ? (
-                        <p className="text-gray-300">Você ainda não girou a roleta hoje.</p>
-                    ) : brindesHoje.length >= 3 ? (
-                        <>
-                            <p className="mb-2 text-[#f9f9f9] font-semibold">
-                                Você atingiu o limite de 3 giros hoje.
-                            </p>
-                            <ul className="space-y-1 text-gray-300">
-                                <p className="text-white mt-1">Brindes de hoje:</p>
-                                {brindesHoje.map((item, index) => (
-                                    <li key={index} className="flex justify-between">
-                                        <span>
-                                            {dayjs.utc(item.data) // lê a string UTC
-                                                .tz(TIMEZONE)       // converte para Brasília
-                                                .format("DD/MM/YYYY HH:mm")}
-                                        </span>
-                                        <span className="font-medium">{item.premio}</span>
-                                    </li>
-                                ))}
+  // tentativas e próxima janela
+  const tentativasRestantes = useMemo(() => Math.max(0, 3 - (brindesHoje?.length || 0)), [brindesHoje]);
 
-                            </ul>
+  const proximoHorarioMin = useMemo(() => {
+    const ultimoValido = [...brindesHoje]
+      .filter((b) => b.premio !== "Nada")
+      .sort((a, b) => dayjs(b.data).valueOf() - dayjs(a.data).valueOf())[0];
+    if (!ultimoValido) return null;
+    const dataUltimo = dayjs(ultimoValido.data);
+    const diff = dayjs().diff(dataUltimo, "minute");
+    const minutosRestantes = 180 - diff; // 3h
+    return minutosRestantes > 0 ? minutosRestantes : null;
+  }, [brindesHoje]);
 
-                        </>
-                    ) : proximoHorario ? (<>
-                        <p className="text-yellow-400">
-                            Você já girou a roleta. Aguarde <strong>{proximoHorario} minutos</strong> para tentar novamente.
-                        </p>
-                        <ul className="space-y-1 text-gray-300">
-                            <p className="text-white mt-1">Brindes de hoje:</p>
-                            {brindesHoje.map((item, index) => (
-                                <>
+  const canSpin = tentativasRestantes > 0 && !proximoHorarioMin;
 
-                                    <li key={index} className="flex justify-between">
-                                        <span>{item.data}</span>
-                                        <span className="font-medium">{item.premio}</span>
-                                    </li>
-                                </>
-                            ))}
-                        </ul>
-                    </>
+  const go = (href) => { setMenuOpen(false); router.push(href); };
 
+  return (
+   <div className="relative min-h-[100svh] md:min-h-[100dvh] text-white overflow-hidden bg-[#0f172a]">
 
-                    ) : (
-                        <>
-                            <p className="text-green-400">Você já pode girar novamente!</p>
-                            <ul className="space-y-1 text-gray-300">
-                                <p className="text-white mt-1">Brindes de hoje:</p>
-                                {brindesHoje.map((item, index) => (
-                                    <>
+      {/* BG em camadas */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 "style={{
+          background:
+            "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
+        }} />
+        <div className="absolute -left-1/4 -top-1/4 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-50" style={{
+          background:
+            "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
+        }} />
+        <div className="absolute -right-1/4 -bottom-1/4 h-[70vh] w-[70vh] rounded-full blur-3xl opacity-40" style={{background:"radial-gradient(closest-side, rgba(99,102,241,0.35), transparent 70%)"}} />
+        <svg className="absolute inset-0 h-full w-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+              <path d="M36 0H0V36" fill="none" stroke="white" strokeWidth="1" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+      </div>
 
-                                        <li key={index} className="flex justify-between">
-                                            <span>{item.data}</span>
-                                            <span className="font-medium">{item.premio}</span>
-                                        </li>
-                                    </>
-                                ))}
-                            </ul>
-                        </>
+  <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
+  <button onClick={() => setMenuOpen(true)} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition">
+    <Menu className="h-5 w-5" />
+  </button>
 
-                    )}
-                </div>
-            </section>
-            <AnimatePresence>
-                {menuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 30 }}
-                        transition={{ duration: 0.4 }}
-                        className="fixed inset-0  bg-opacity-90 z-50 flex flex-col justify-center items-center text-center p-8"
-                        style={{ background: "radial-gradient(circle at center, #cfcfcf 0%, #3a5f8a 100%)" }}
-                    >
-                        <div className="fixed inset-0 z-50 bg-opacity-90 text-left" style={{ background: "radial-gradient(circle at center, #5a5a5a 0%, #0b1f3a 150%)" }}>
-                            <button
-                                onClick={() => setMenuOpen(false)}
-                                className="absolute top-4 right-4 text-white text-3xl"
-                            >
-                                ×
-                            </button>
-                            <nav className="flex flex-col gap-4 px-6 pt-12 text-white">
-                                <button
-                                    onClick={() => navigate("/pages/user/dashboard")}
-                                    className="text-lg hover:text-yellow-400 transition text-left"
-                                >
-                                    Dashboard
-                                </button>
-
-                                <button
-                                    onClick={() => navigate("/pages/user/historico")}
-                                    className="text-lg hover:text-yellow-400 transition text-left"
-                                >
-                                    Histórico de Prêmios
-                                </button>
-                                {/* <button
-                                    onClick={() => navigate("/pages/user/dashboard")}
-                                    className="text-lg hover:text-yellow-400 transition text-left"
-                                >
-                                    ideias
-                                </button> */}
-                                <button
-                                    onClick={() => navigate("/")}
-                                    className="text-lg text-red-400 hover:text-red-300 transition text-left"
-                                >
-                                    Sair
-                                </button>
-                            </nav>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+  <div className="flex items-center gap-3">
+    {user ? (
+      <>
+        <div className="text-right">
+          <p className="text-xs/4 text-white/70">{user.email}</p>
+          <p className="text-sm font-medium">{user.nome}</p>
         </div>
+        <img src={user.avatarUrl} alt={user.nome} className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20 shadow" />
+      </>
+    ) : (
+      <div className="animate-pulse text-sm text-white/60">Carregando...</div>
+    )}
+  </div>
+</header>
 
-    );
+
+      {/* Conteúdo */}
+      <main className="relative z-10 mx-auto w-full max-w-3xl px-4 pb-10 sm:px-6">
+        {/* Cards de status */}
+        <motion.section initial={{opacity:0, y:12}} animate={{opacity:1, y:0}} transition={{duration:.35}} className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {/* Tentativas */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm shadow-[0_1px_0_rgba(255,255,255,0.05),0_30px_60px_-15px_rgba(0,0,0,0.45)]">
+            <p className="text-xs text-white/70">Tentativas restantes</p>
+            <p className="mt-1 text-3xl font-bold leading-none">{tentativasRestantes}</p>
+            <p className="mt-1 text-[11px] text-white/60">Máximo de 3 giros por dia</p>
+          </div>
+
+          {/* Próximo horário */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+            <p className="flex items-center gap-1 text-xs text-white/70"><Clock className="h-3.5 w-3.5"/>Próximo giro</p>
+            <p className="mt-1 text-2xl font-semibold leading-none">{proximoHorarioMin ? `${proximoHorarioMin} min` : "Disponível"}</p>
+            <p className="mt-1 text-[11px] text-white/60">Intervalo mínimo de 3 horas</p>
+          </div>
+
+          {/* Último prêmio */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+            <p className="flex items-center gap-1 text-xs text-white/70"><Gift className="h-3.5 w-3.5"/>Último prêmio</p>
+            {brindesHoje.length > 0 ? (
+              <>
+                <p className="mt-1 truncate text-lg font-semibold leading-none">{brindesHoje[brindesHoje.length - 1].premio}</p>
+                <p className="mt-1 text-[11px] text-white/60">{formatZ(brindesHoje[brindesHoje.length - 1].data)}</p>
+              </>
+            ) : (
+              <p className="mt-1 text-lg font-semibold leading-none">—</p>
+            )}
+          </div>
+        </motion.section>
+
+        {/* CTA principal */}
+        <motion.section initial={{opacity:0, y:12}} animate={{opacity:1, y:0}} transition={{duration:.4, delay:.05}} className="mt-4">
+          <button
+            onClick={() => canSpin ? router.push("/pages/user/video") : null}
+            disabled={!canSpin}
+            className={`group relative w-full overflow-hidden rounded-2xl border px-5 py-4 text-left transition backdrop-blur-sm
+              ${canSpin ? "cursor-pointer border-white/15 bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30" : "cursor-not-allowed border-white/10 bg-white/5 opacity-70"}`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-base font-semibold">{canSpin ? "Girar a Roleta" : tentativasRestantes === 0 ? "Limite de giros atingido" : `Aguarde ${proximoHorarioMin} min`}</p>
+                <p className="mt-0.5 text-sm text-white/70">Ganhe prêmios e acompanhe seu histórico</p>
+              </div>
+              <ChevronRight className="h-5 w-5 opacity-80 transition group-hover:translate-x-0.5" />
+            </div>
+          </button>
+        </motion.section>
+
+        {/* Histórico de hoje */}
+        <motion.section initial={{opacity:0, y:12}} animate={{opacity:1, y:0}} transition={{duration:.4, delay:.1}} className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2"><History className="h-4 w-4"/><h2 className="text-sm font-medium">Brindes de hoje</h2></div>
+            <button onClick={() => router.push("/pages/user/historico")} className="text-xs text-white/70 underline-offset-2 hover:underline">ver histórico completo</button>
+          </div>
+
+          {brindesHoje.length === 0 ? (
+            <p className="text-white/70">Você ainda não girou a roleta hoje.</p>
+          ) : (
+            <ul className="divide-y divide-white/10">
+              {brindesHoje.map((item, idx) => (
+                <li key={idx} className="flex items-center justify-between py-2.5">
+                  <span className="text-sm text-white/80">{formatZ(item.data)}</span>
+                  <span className="text-sm font-medium">{item.premio}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </motion.section>
+      </main>
+
+      {/* Drawer menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50">
+            <div className="absolute inset-0 " style={{ background: `
+    radial-gradient(1000px 600px at 15% 15%, rgba(124,58,237,0.25), transparent 60%),
+    radial-gradient(900px 500px at 85% 25%, rgba(34,211,238,0.18), transparent 60%),
+    radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%),
+    radial-gradient(circle at center, rgba(10,15,35,0.95) 0%, rgba(15,23,42,1) 100%)
+  `,}}onClick={() => setMenuOpen(false)} />
+            <motion.aside initial={{x:-320}} animate={{x:0}} exit={{x:-320}} transition={{type:"spring", stiffness:300, damping:30}}
+              className="relative z-10 h-full w-[85%] max-w-sm border-r border-white/10 bg-[#0f172a]/80 backdrop-blur-xl p-5">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-white/70">{user.email}</p>
+                  <p className="text-sm font-medium">{user.nome}</p>
+                </div>
+                <img src={user.avatarUrl} alt={user.nome} className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20" />
+              </div>
+
+              <nav className="space-y-2">
+                <button onClick={() => go("/pages/user/dashboard")} className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10">
+                  <span>Dashboard</span>
+                  <ChevronRight className="h-4 w-4 opacity-70" />
+                </button>
+                <button onClick={() => go("/pages/user/historico")} className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10">
+                  <span>Histórico de Prêmios</span>
+                  <ChevronRight className="h-4 w-4 opacity-70" />
+                </button>
+              </nav>
+
+              <div className="mt-6 border-t border-white/10 pt-4">
+                <button
+                  onClick={() => { clearUserToken(); go("/pages/user/signIn"); }}
+                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-red-300 hover:bg-white/10"
+                >
+                  <span className="flex items-center gap-2"><LogOut className="h-4 w-4"/>Sair</span>
+                  <ChevronRight className="h-4 w-4 opacity-70" />
+                </button>
+              </div>
+            </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }

@@ -1,10 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import Welcome from "@/app/pages/user/welcome/page";
+
+import SignIn from "./pages/user/signIn/page";
 export default function Home() {
     return (
         <div >
-          <Welcome />
+         <SignIn />
         </div>
     );
 }

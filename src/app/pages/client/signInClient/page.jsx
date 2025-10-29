@@ -1,105 +1,175 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import Header from "../../../../components/header/HeaderWithOutButtons";
+import { toast } from "react-hot-toast";
+import { api } from "../../../../utils/api";
+import { setClientToken } from "../../../../utils/auth";
 
-export default function signInClient() {
-    const router = useRouter();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+export default function ClientSignIn() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const {
-        handleSubmit,
-        register,
-        setValue,
-        watch,
-        reset,
-        formState: { errors },
-    } = useForm();
+  const {
+    handleSubmit,
+    register,
+    watch,
+    formState: { errors },
+    setError,
+    reset,
+  } = useForm();
 
-    const onSubmit = async (data) => {
-        setIsSubmitting(true);
-        const response = true;
+  const [showPassword, setShowPassword] = useState(false);
 
-        if (response === true) {
-            toast.success("Cadastro realizado com sucesso!");
-            reset();
-            router.push(`/pages/client/dashboard`);
-        }
-    };
-    const fadeIn = (delay = 0) => ({
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.6, delay },
-    });
+  const onSubmit = async (data) => {
+  try {
+    setIsSubmitting(true);
 
-    
+    const res = await api.clientLogin({ email: data.email, password: data.password });
+    const token = res?.access_token;
+    if (!token) throw new Error("Credenciais inválidas");
 
-    return (
-        <div className="relative h-screen w-screen overflow-hidden font-[Bangers]">
-            <Header />
-            <motion.div
-                {...fadeIn(0)}
-                className="min-h-screen flex items-center justify-center px-4 font-[Roboto]"
-                style={{ background: "#1f1f1f" }}
-            >
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="space-y-4 w-full max-w-md text-white"
-                >
-                    <div className="mt-12 mb-10 text-[40px] text-center">Acesse sua conta</div>
+    // salva cookie (pro middleware) e localStorage (opcional front)
+    setClientToken(token);
 
-                    <div>
-                        <label>Email</label>
-                        <input
-                            {...register("email", { required: "Campo obrigatório" })}
-                            className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border border-transparent focus:border-[#facc15] focus:outline-none"
-                            placeholder="exemplo@email.com"
-                            autoComplete="off"
-                            type="email"
-                        />
-                        {errors.email && (
-                            <p className="text-[#ef4444] text-sm">{errors.email.message}</p>
-                        )}
-                    </div>
+    toast.success("Login realizado!");
+    reset();
+    router.replace("/pages/client/dashboard");
+  } catch (err) {
+    const message =
+      err?.response?.data?.detail ||
+      err?.message ||
+      "Falha no login. Verifique suas credenciais.";
 
-                    <div>
-                        <label>Senha</label>
-                        <input
-                            {...register("senha", { required: "Campo obrigatório" })}
-                            className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border border-transparent focus:border-[#facc15] focus:outline-none"
-                            placeholder="••••••••"
-                            type="password"
-                            autoComplete="off"
-                        />
-                        {errors.senha && (
-                            <p className="text-[#ef4444] text-sm">{errors.senha.message}</p>
-                        )}
-                    </div>
+    setError("password", { type: "manual", message });
+    toast.error(message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
-                    <div className="flex flex-col items-center justify-center mt-8 space-y-2">
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="px-4 py-2 bg-[#973bfe] text-black rounded hover:bg-[#e0b80f] transition font-semibold"
-                        >
-                            {isSubmitting ? "Entrando..." : "Entrar"}
-                        </button>
+  const fade = (d = 0) => ({
+    initial: { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5, delay: d },
+  });
 
-                        <p className="text-sm text-gray-600">
-                            Não tem conta?{" "}
-                            <a
-                                href="/pages/signUp"
-                                className="text-yellow-600 font-semibold hover:underline"
-                            >
-                                Registre-se
-                            </a>
-                        </p>
-                    </div>
-                </form>
+  return (
+    <div
+      className="min-h-[100svh] w-full overflow-hidden relative"
+      style={{
+        background:
+          "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.18), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.14), transparent 60%), linear-gradient(180deg, #0b0f1a 0%, #0f172a 100%)",
+      }}
+    >
+      {/* <Header /> se quiser manter */}
+
+      {/* textura sutil */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.05]"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+            <path d="M36 0H0V36" fill="none" stroke="white" strokeWidth="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+      </svg>
+
+      {/* centro */}
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-5xl items-center justify-center px-4">
+        <motion.div
+          {...fade(0.05)}
+          className="w-full max-w-[420px] rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6 shadow-[0_1px_0_rgba(255,255,255,0.05),0_30px_60px_-15px_rgba(0,0,0,0.6)]"
+        >
+          {/* logo / título */}
+          <motion.div {...fade(0.1)} className="mb-6 text-center">
+            <div className="mx-auto mb-3 h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-400 shadow-lg" />
+            <h1 className="text-xl font-semibold text-white">Área do Cliente</h1>
+             {/* <h2 className="text-xl font-semibold text-white">Entrar</h2> */}
+            <p className="mt-1 text-sm text-white/60">
+              Acesse sua conta para continuar
+            </p>
+          </motion.div>
+
+          {/* formulário */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Email */}
+            <motion.div {...fade(0.15)} className="space-y-1.5">
+              <label className="text-xs text-white/70">Email</label>
+              <input
+                type="email"
+                autoComplete="email"
+                placeholder="seu@email.com"
+                className="w-full rounded-xl bg-[#1b1f2a] text-white placeholder:text-white/40 border border-white/10 focus:border-violet-400/70 focus:outline-none px-3 py-2.5 transition"
+                {...register("email", {
+                  required: "Campo obrigatório",
+                  pattern: { value: /\S+@\S+\.\S+/, message: "Email inválido" },
+                })}
+              />
+              {errors.email && (
+                <p className="text-[12px] text-rose-400">{errors.email.message}</p>
+              )}
             </motion.div>
-        </div>
-    );
+
+            {/* Senha */}
+            <motion.div {...fade(0.2)} className="space-y-1.5">
+              <label className="text-xs text-white/70">Senha</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  className="w-full rounded-xl bg-[#1b1f2a] text-white placeholder:text-white/40 border border-white/10 focus:border-violet-400/70 focus:outline-none px-3 py-2.5 transition pr-10"
+                  {...register("password", { required: "Campo obrigatório" })}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/80 text-xs"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? "Ocultar" : "Mostrar"}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-[12px] text-rose-400">{errors.password.message}</p>
+              )}
+            </motion.div>
+
+            {/* Ações */}
+            <motion.div {...fade(0.25)} className="mt-2 flex items-center justify-between">
+              <a href="/pages/client/forgot" className="text-xs text-white/70 hover:text-white/90 underline-offset-2 hover:underline">
+                Esqueci minha senha
+              </a>
+              {/* espaço reservado pra lembrar-me se quiser */}
+            </motion.div>
+
+            {/* Botão */}
+            <motion.button
+              {...fade(0.3)}
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-2 w-full rounded-xl bg-violet-600 text-white font-medium py-2.75 transition hover:bg-violet-500 disabled:opacity-60"
+            >
+              {isSubmitting ? "Entrando..." : "Entrar"}
+            </motion.button>
+
+            {/* rodapé pequeno */}
+            <motion.p {...fade(0.35)} className="text-center text-xs text-white/60 mt-3">
+              Não tem conta?{" "}
+              <a
+                href="/pages/client/signUp"
+                className="text-violet-400 hover:text-violet-300 font-medium"
+              >
+                Registre-se
+              </a>
+            </motion.p>
+          </form>
+        </motion.div>
+      </div>
+    </div>
+  );
 }

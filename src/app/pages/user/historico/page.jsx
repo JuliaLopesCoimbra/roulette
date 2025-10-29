@@ -1,22 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import DatePicker from "react-datepicker";
 import dayjs from "dayjs";
 import "react-datepicker/dist/react-datepicker.css";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { FaBars } from "react-icons/fa";
+import { Menu, LogOut, History, Gift, ChevronRight, Clock } from "lucide-react";
 import prizes from "../../../../components/prizes/prizes";
+import { getUserToken, clearUserToken } from "../../../../utils/auth";
+
 dayjs.extend(customParseFormat);
 
 export default function Dashboard() {
     const router = useRouter();
     const [dataSelecionada, setDataSelecionada] = useState(new Date());
     const [menuOpen, setMenuOpen] = useState(false);
-    const [user] = useState({
-        nome: "Julia Lopes",
-        email: "julia@email.com",
+    const [brindes] = useState({
         brindes: [
             // Hoje
             { data: "12/10/2025 09:00", premio: "AirPods Pro" },
@@ -43,9 +43,9 @@ export default function Dashboard() {
             { data: "16/10/2025 12:00", premio: "100% Adidas" },
             { data: "16/10/2025 15:00", premio: "Pix R$100,00" }
         ]
-
     });
-    const brindesDoDia = user.brindes.filter((item) => {
+    const [user, setUser] = useState(null);
+    const brindesDoDia = brindes.brindes.filter((item) => {
         if (!dataSelecionada) return false;
 
         const dataBrinde = dayjs(item.data, "DD/MM/YYYY").format("YYYY-MM-DD");
@@ -53,33 +53,52 @@ export default function Dashboard() {
 
         return dataBrinde === dataSelecionadaFormatada;
     });
-    const navigate = (path) => {
-        setMenuOpen(false);
-        router.push(path);
-    };
+    useEffect(() => {
+        const tok = getUserToken();
+        if (!tok) {
+            router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
+            return;
+        }
+
+        // busca informações do usuário logado
+        import("../../../../utils/api").then(({ api }) => {
+            api.me()
+                .then((data) => setUser({
+                    nome: data.name || "Usuário",
+                    email: data.email || "",
+                    avatarUrl: "/img/avatar.jpg", // opcional: futuramente pode vir da API
+                }))
+                .catch((err) => {
+                    console.error("Erro ao buscar perfil:", err);
+                    clearUserToken();
+                    router.replace("/pages/user/signIn");
+                });
+        });
+    }, [router]);
+    const go = (href) => { setMenuOpen(false); router.push(href); };
     return (
         <div className="min-h-screen p-4 text-gray-100" style={{
-            background: "radial-gradient(circle at center, #cfcfcf 0%, #3a5f8a 100%)"
+            background:
+                "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
         }}
         >
-            <header className="relative flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-4">
-                    <button
-                        onClick={() => setMenuOpen(true)}
-                        className="text-white text-2xl p-2 rounded hover:bg-gray-700 transition"
-                    >
-                        <FaBars />
-                    </button>
+            <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
+                <button onClick={() => setMenuOpen(true)} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition">
+                    <Menu className="h-5 w-5" />
+                </button>
 
-                    <div>
-                        <h1 className="text-xl font-semibold text-white">Julia Lopes</h1>
-                        <p className="text-sm text-gray-300">julia@email.com</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center space-x-2 border border-amber-500 text-white px-6 py-2 rounded-lg shadow">
-                    <img src="/img/creditos.png" alt="Créditos" className="w-8 h-8 object-contain" />
-                    <p className="font-bold text-2xl">3</p>
+                <div className="flex items-center gap-3">
+                    {user ? (
+                        <>
+                            <div className="text-right">
+                                <p className="text-xs/4 text-white/70">{user.email}</p>
+                                <p className="text-sm font-medium">{user.nome}</p>
+                            </div>
+                            <img src={user.avatarUrl} alt={user.nome} className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20 shadow" />
+                        </>
+                    ) : (
+                        <div className="animate-pulse text-sm text-white/60">Carregando...</div>
+                    )}
                 </div>
             </header>
 
@@ -111,7 +130,7 @@ export default function Dashboard() {
                             return (
                                 <li
                                     key={index}
-                                    
+
                                     className="bg-gray-700 border border-gray-700 rounded-lg px-4 py-3 flex items-center gap-4 text-[3vh] text-white"
                                 >
                                     <img
@@ -131,54 +150,49 @@ export default function Dashboard() {
                     )}
                 </ul>
             </section>
-            <AnimatePresence>
-                {menuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 30 }}
-                        transition={{ duration: 0.4 }}
-                         style={{ background: "radial-gradient(circle at center, #5a5a5a 0%, #0b1f3a 150%)" }}
-                        className="fixed inset-0 bg-opacity-90 z-50 flex flex-col justify-center items-center text-center p-8"
-                    >
-                        <div className="fixed inset-0 z-50 bg-opacity-90 text-left" >
-                            <button
-                                onClick={() => setMenuOpen(false)}
-                                className="absolute top-4 right-4 text-white text-3xl"
-                            >
-                                ×
-                            </button>
-                            <nav className="flex flex-col gap-4 px-6 pt-12 text-white">
-                                <button
-                                    onClick={() => navigate("/pages/user/dashboard")}
-                                    className="text-lg hover:text-yellow-400 transition text-left"
-                                >
-                                    Dashboard
-                                </button>
-
-                                <button
-                                    onClick={() => navigate("/pages/user/historico")}
-                                    className="text-lg hover:text-yellow-400 transition text-left"
-                                >
-                                    Histórico de Prêmios
-                                </button>
-                                {/* <button
-                                    onClick={() => navigate("/pages/user/dashboard")}
-                                    className="text-lg hover:text-yellow-400 transition text-left"
-                                >
-                                    ideias
-                                </button> */}
-                                <button
-                                    onClick={() => navigate("/")}
-                                    className="text-lg text-red-400 hover:text-red-300 transition text-left"
-                                >
-                                    Sair
-                                </button>
-                            </nav>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+           <AnimatePresence>
+                 {menuOpen && (
+                   <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50">
+                     <div className="absolute inset-0 " style={{ background: `
+             radial-gradient(1000px 600px at 15% 15%, rgba(124,58,237,0.25), transparent 60%),
+             radial-gradient(900px 500px at 85% 25%, rgba(34,211,238,0.18), transparent 60%),
+             radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%),
+             radial-gradient(circle at center, rgba(10,15,35,0.95) 0%, rgba(15,23,42,1) 100%)
+           `,}}onClick={() => setMenuOpen(false)} />
+                     <motion.aside initial={{x:-320}} animate={{x:0}} exit={{x:-320}} transition={{type:"spring", stiffness:300, damping:30}}
+                       className="relative z-10 h-full w-[85%] max-w-sm border-r border-white/10 bg-[#0f172a]/80 backdrop-blur-xl p-5">
+                       <div className="mb-6 flex items-center justify-between">
+                         <div>
+                           <p className="text-xs text-white/70">{user.email}</p>
+                           <p className="text-sm font-medium">{user.nome}</p>
+                         </div>
+                         <img src={user.avatarUrl} alt={user.nome} className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20" />
+                       </div>
+         
+                       <nav className="space-y-2">
+                         <button onClick={() => go("/pages/user/dashboard")} className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10">
+                           <span>Dashboard</span>
+                           <ChevronRight className="h-4 w-4 opacity-70" />
+                         </button>
+                         <button onClick={() => go("/pages/user/historico")} className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10">
+                           <span>Histórico de Prêmios</span>
+                           <ChevronRight className="h-4 w-4 opacity-70" />
+                         </button>
+                       </nav>
+         
+                       <div className="mt-6 border-t border-white/10 pt-4">
+                         <button
+                           onClick={() => { clearUserToken(); go("/pages/user/signIn"); }}
+                           className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-red-300 hover:bg-white/10"
+                         >
+                           <span className="flex items-center gap-2"><LogOut className="h-4 w-4"/>Sair</span>
+                           <ChevronRight className="h-4 w-4 opacity-70" />
+                         </button>
+                       </div>
+                     </motion.aside>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
         </div>
 
     );
