@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import Header from "../../../../components/header/Header";
+import Header from "../../../../components/header/public/Header";
 export default function Welcome() {
 const router = useRouter();
     const toGoForm = () =>{

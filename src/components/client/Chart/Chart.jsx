@@ -14,11 +14,11 @@ import ByMarcas from "./charts/ByMarcas";
 import BySocialMedias from "./charts/BySocialMedias";
 
 export default function Chart() {
-    const [modo, setModo] = useState("basico");
+    const [modo, setModo] = useState("avancado");
 
     return (
         <div className="space-y-10">
-            <div className="flex items-center gap-4 mb-6">
+            {/* <div className="flex items-center gap-4 mb-6">
                 <button
                     onClick={() => setModo("basico")}
                     className={`px-4 py-2 rounded ${modo === "basico"
@@ -37,7 +37,7 @@ export default function Chart() {
                 >
                     Avançado
                 </button>
-            </div>
+            </div> */}
 
             {/* Gráficos em comum (modo básico) */}
             {modo === "basico" && (

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import Header from "../../../../components/header/Header";
+import Header from "../../../../components/header/public/Header";
 import { api } from "../../../../utils/api";
 import { setUserToken } from "../../../../utils/auth";
 

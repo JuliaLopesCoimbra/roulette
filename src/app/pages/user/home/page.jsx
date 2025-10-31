@@ -16,7 +16,7 @@ export default function HomeUser() {
   useEffect(() => {
     const tok = getUserToken();
     if (!tok) {
-      router.replace("/pages/user/home?redirectTo=/pages/user/home");
+      router.replace("/pages/user/signIn?redirectTo=/pages/user/home");
       return;
     }
     (async () => {
@@ -30,6 +30,7 @@ export default function HomeUser() {
       } catch (err) {
         console.error("Erro ao buscar /me:", err);
         clearUserToken();
+        clearClientToken();
         router.replace("/pages/user/signIn?redirectTo=/pages/user/home");
       } finally {
         setLoadingUser(false);
@@ -42,7 +43,7 @@ export default function HomeUser() {
     setLoading(true);
     try {
       // GET /active-roulette
-      const resp = await api.activeRoulette(); 
+      const resp = await api.activeRoulette();
       // resp: { status: boolean, activated_at: string | null }
       if (resp?.status === true) {
         router.push("/pages/user/dashboard");

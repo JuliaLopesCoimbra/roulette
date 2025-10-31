@@ -1,16 +1,71 @@
 "use client";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import ProgressDots from "../ProgressDots";
 import { formatCPF, validarCPF, formatCelular } from "../../../../utils/validators";
+import { URL_BASE } from "../../../../utils/api";
 
 export default function Step1DadosPessoais({ step, setStep, router }) {
-  const { register, setValue, trigger, formState: { errors } } = useFormContext();
+  const {
+    register,
+    setValue,
+    trigger,
+    getValues,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useFormContext();
+
+  const [checkingCPF, setCheckingCPF] = useState(false);
+
+  async function verifyCpfServer(cpfMasked) {
+    const raw = (cpfMasked || "").replace(/\D/g, "");
+    if (!raw) return { is_valid: false, exists: false, status: "invalid" };
+
+    const res = await fetch(
+      `${URL_BASE}/users-verify/verify-cpf?cpf=${encodeURIComponent(raw)}`,
+      { method: "GET" }
+    );
+    if (!res.ok) throw new Error("Falha ao verificar CPF");
+    return await res.json(); // { cpf, is_valid, exists, status, message }
+  }
+
+  const handleNext = async () => {
+    if (checkingCPF) return; // evita clique duplo
+
+    // 1) validações locais
+    const ok = await trigger(["nome", "cpf", "celular", "nascimento", "gender"]);
+    if (!ok) return;
+
+    // 2) validação remota do CPF
+    try {
+      setCheckingCPF(true);
+      const cpfMasked = getValues("cpf");
+      const data = await verifyCpfServer(cpfMasked);
+
+      if (data?.is_valid && !data?.exists) {
+        clearErrors("cpf");
+        setStep(2);
+      } else {
+        setError("cpf", {
+          type: "server",
+          message: data?.exists ? "CPF já cadastrado." : "CPF inválido.",
+        });
+      }
+    } catch (e) {
+      setError("cpf", {
+        type: "server",
+        message: "Não foi possível validar o CPF agora. Tente novamente.",
+      });
+    } finally {
+      setCheckingCPF(false);
+    }
+  };
 
   return (
     <>
       <div className="absolute top-10 z-10">
         <button onClick={() => router.back()} className="text-[#973bfe] hover:text-purple-900">
-          {/* ícone voltar */}
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                strokeWidth={2} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -40,8 +95,8 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
           {...register("cpf", {
             required: "Campo obrigatório",
             validate: (v) => validarCPF(v) || "CPF inválido",
-            onChange: (e) => setValue("cpf", formatCPF(e.target.value)),
           })}
+          onChange={(e) => setValue("cpf", formatCPF(e.target.value))}
           className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border border-transparent focus:border-[#973bfe] focus:outline-none"
           placeholder="000.000.000-00"
           autoComplete="off"
@@ -54,8 +109,8 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
         <input
           {...register("celular", {
             required: "Campo obrigatório",
-            onChange: (e) => setValue("celular", formatCelular(e.target.value)),
           })}
+          onChange={(e) => setValue("celular", formatCelular(e.target.value))}
           className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border border-transparent focus:border-[#973bfe] focus:outline-none"
           placeholder="(11) 9 8765-4321"
           autoComplete="off"
@@ -87,42 +142,40 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
       </div>
 
       <div>
-  <label className="block mb-1">Sexo</label>
-  <div className="flex gap-4 text-sm">
-    <label className="inline-flex items-center gap-2">
-      <input
-        type="radio"
-        value="Feminino"
-        {...register("gender", { required: "Selecione seu sexo" })}
-        className="accent-purple-700"
-      />
-      Feminino
-    </label>
-    <label className="inline-flex items-center gap-2">
-      <input
-        type="radio"
-        value="Masculino"
-        {...register("gender", { required: "Selecione seu sexo" })}
-        className="accent-purple-700"
-      />
-      Masculino
-    </label>
-  </div>
-  {errors.gender && <p className="text-[#ef4444] text-sm">{errors.gender.message}</p>}
-</div>
+        <label className="block mb-1">Sexo</label>
+        <div className="flex gap-4 text-sm">
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="radio"
+              value="Feminino"
+              {...register("gender", { required: "Selecione seu sexo" })}
+              className="accent-purple-700"
+            />
+            Feminino
+          </label>
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="radio"
+              value="Masculino"
+              {...register("gender", { required: "Selecione seu sexo" })}
+              className="accent-purple-700"
+            />
+            Masculino
+          </label>
+        </div>
+        {errors.gender && <p className="text-[#ef4444] text-sm">{errors.gender.message}</p>}
+      </div>
 
       <ProgressDots step={step} />
 
       <div className="flex flex-col items-center justify-center mt-8 space-y-2">
         <button
           type="button"
-          onClick={async () => {
-            const ok = await trigger(["nome", "cpf", "celular", "nascimento", "gender"]);
-            if (ok) setStep(2);
-          }}
-          className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold"
+          onClick={handleNext}
+          className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold disabled:opacity-60"
+          disabled={checkingCPF}
         >
-          Avançar
+          {checkingCPF ? "Verificando..." : "Avançar"}
         </button>
         <p className="text-sm text-gray-200">
           Já tem login?{" "}

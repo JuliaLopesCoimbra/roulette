@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import Header from "../../../../components/header/HeaderClient";
+
 export default function Welcome() {
 const router = useRouter();
     const toGoForm = () =>{
@@ -11,7 +11,7 @@ const router = useRouter();
     
     return (
         <>
-            <Header />
+           
             <div className=" flex flex-col items-center justify-center h-screen bg-gradient-to-b bg-black bg-opacity-90">
                 <div
                     className="absolute inset-0 bg-cover bg-center opacity-30  z-0"

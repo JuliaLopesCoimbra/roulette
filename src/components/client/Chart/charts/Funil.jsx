@@ -34,8 +34,8 @@ dados.forEach((d) => {
 
 export default function Funil() {
   return (
-    <div className="bg-[#121212] text-white p-6 space-y-8">
-      <h2 className="text-2xl font-bold">Funil de Conversões</h2>
+    <div className=" text-white p-6 space-y-8">
+      {/* <h2 className="text-2xl font-bold">Funil de Conversões</h2> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <ResponsiveContainer width="100%" height={250}>

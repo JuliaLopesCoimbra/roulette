@@ -3,20 +3,20 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import SuccessAnimation from "../../../components/feedback/SuccessAnimation";
-import Step1DadosPessoais from "./steps/Step1DadosPessoais";
-import Step2Endereco from "./steps/Step2Endereco";
-import Step3Acesso from "./steps/Step3Acesso";
-import Step4Preferencias from "./steps/Step4Preferencias";
+import SuccessAnimationAurora from "../../../components/feedback/SuccessAnimation";
+import Step1DadosPessoais from "./stepsUser/Step1DadosPessoais";
+import Step2Endereco from "./stepsUser/Step2Endereco";
+import Step3Acesso from "./stepsUser/Step3Acesso";
+import Step4Preferencias from "./stepsUser/Step4Preferencias";
 import { api } from "../../../utils/api";
-
+import { setUserToken } from "../../../utils/auth";
 const fadeIn = (delay = 0) => ({
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6, delay },
 });
 
-const onlyDigits = (s = "") => String(s).replace(/\D/g, "");
+
 
 
 export default function CadastroFormUser() {
@@ -24,7 +24,7 @@ export default function CadastroFormUser() {
     const [step, setStep] = useState(1);
     const [redesSelecionadas, setRedesSelecionadas] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(true);
 
     const methods = useForm({ mode: "onBlur" });
 
@@ -71,7 +71,7 @@ export default function CadastroFormUser() {
                 // opcional
                 date_create: dateOnly,
             };
-            await api.signup(payload);
+            
             const res = await api.signup(payload);
             const token =
                 res?.access_token || res?.token || res?.data?.access_token;
@@ -110,7 +110,7 @@ export default function CadastroFormUser() {
             "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
         }}
             >
-                {showSuccess && <SuccessAnimation />}
+              
 
                 {!showSuccess && (
                     <FormProvider {...methods}>
@@ -139,7 +139,14 @@ export default function CadastroFormUser() {
                 )}
             </motion.div>
 
-            {showSuccess && <SuccessAnimation />}
+           <SuccessAnimationAurora
+  show={showSuccess}
+  message="Cadastro realizado com sucesso!"
+  subtext="Redirecionando para sua área…"
+  autoCloseMs={2000}            // ou null pra não fechar sozinho
+  onClose={() => router.push("/pages/user/home")}
+/>
+
         </div>
     );
 }

@@ -9,6 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@nivo/bar": "^0.99.0",
+    "@nivo/calendar": "^0.99.0",
+    "@nivo/circle-packing": "^0.99.0",
+    "@nivo/line": "^0.99.0",
+    "@nivo/pie": "^0.99.0",
     "@react-google-maps/api": "^2.20.7",
     "canvas-confetti": "^1.9.3",
     "date-fns": "^4.1.0",

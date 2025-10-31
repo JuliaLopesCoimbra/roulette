@@ -1,66 +1,101 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-
+import ChartCard from "../../../components/client/Chart/charts-nivo/ChartCard";
+import BarsViewsClicks from "../../../components/client/Chart/charts-nivo/BarsViewsClicks";
+import DonutAds from "../../../components/client/Chart/charts-nivo/DonutAds";
+import CalendarActivity from "../../../components/client/Chart/charts-nivo/CalendarActivity";
+import ProfessionDistribution from "../Chart/charts-nivo/ProfessionDistribution";
+import AdsPerformance from "../Chart/charts-nivo/AdsPerfomance";
+import UsersByState from "../Chart/charts-nivo/UsersByState";
+import ClicksViewsMonthly from "../Chart/charts-nivo/ClicksViewsMonthly";
+import FavoriteBrandDistribution from "../Chart/charts-nivo/FavoriteBrandDistribution"
+import FavoriteHobbyDistribution from "../Chart/charts-nivo/FavoriteHobbyDistribution";
+import FavoriteSocialMediaDistribution from "../Chart/charts-nivo/FavoriteSocialMediaDistribution";
+import AgeRangeDistribution from "../Chart/charts-nivo/AgeRangeDistribution";
 export default function Principal() {
-  const router = useRouter();
-  const toGoBusiness = () => {
-    router.push(`/pages/client/business`);
-  };
-
-  // Dados mockados
-  const [mockData] = useState({
-    nomeEmpresa: "PIC BRAND",
+  const mock = {
     anunciosAtivos: 3,
     visualizacoes: 1240,
     cliques: 305,
-    saldo: 72.50,
+    saldo: 72.5,
     ultimaAtividade: "29/06/2025 às 14:22",
-  });
+  };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Olá, {mockData.nomeEmpresa} 👋</h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-[#2c2c2e] p-4 rounded-lg shadow">
-          <p className="text-sm text-gray-400">Anúncios Ativos</p>
-          <h3 className="text-3xl font-semibold">{mockData.anunciosAtivos}</h3>
-        </div>
-
-        <div className="bg-[#2c2c2e] p-4 rounded-lg shadow">
-          <p className="text-sm text-gray-400">Visualizações Totais</p>
-          <h3 className="text-3xl font-semibold">{mockData.visualizacoes}</h3>
-        </div>
-
-        <div className="bg-[#2c2c2e] p-4 rounded-lg shadow">
-          <p className="text-sm text-gray-400">Cliques Totais</p>
-          <h3 className="text-3xl font-semibold">{mockData.cliques}</h3>
-        </div>
-
-        <div className="bg-[#2c2c2e] p-4 rounded-lg shadow">
-          <p className="text-sm text-gray-400">Saldo Disponível</p>
-          <h3 className="text-3xl font-semibold text-green-400">
-            R$ {mockData.saldo.toFixed(2)}
-          </h3>
-        </div>
-
-        <div className="bg-[#2c2c2e] p-4 rounded-lg shadow col-span-1 sm:col-span-2">
-          <p className="text-sm text-gray-400">Última atividade</p>
-          <p className="text-md">{mockData.ultimaAtividade}</p>
-        </div>
+    <div
+      className="space-y-8"
+      style={{
+        background:
+          "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.22), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%)",
+      }}
+    >
+      {/* KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Anúncios Ativos", value: mock.anunciosAtivos },
+          { label: "Visualizações", value: mock.visualizacoes },
+          { label: "Cliques", value: mock.cliques },
+          { label: "Saldo", value: `R$ ${mock.saldo.toFixed(2)}` },
+        ].map((it) => (
+          <div
+            key={it.label}
+            className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-xl"
+          >
+            <p className="text-gray-400 text-sm">{it.label}</p>
+            <p className="text-3xl font-bold text-white">{it.value}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="bg-yellow-600/10 border border-yellow-600 text-yellow-300 p-4 rounded-lg">
-        <p><strong>Aviso:</strong> Seu saldo está abaixo de R$ 100. Recarregue para manter seus anúncios ativos.</p>
+      {/* Grids de gráficos */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2">
+          <ChartCard title="Visualizações vs Cliques" subtitle="Últimos 5 dias">
+            <BarsViewsClicks />
+          </ChartCard>
+        </div>
+        <ChartCard title="Distribuição de Anúncios" subtitle="Status atual">
+          <DonutAds />
+        </ChartCard>
       </div>
 
-      <button
-        className="px-6 py-3 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition"
-        onClick={toGoBusiness}
-      >
-        Criar Novo Anúncio
-      </button>
+      <div className="grid grid-cols-1 gap-6">
+        <ChartCard title="Atividade no ano" subtitle="Heatmap de visualizações">
+          <CalendarActivity />
+        </ChartCard>
+      </div>
+      <div className="grid grid-cols-1 gap-6">
+        <ChartCard title="Distribuição de Usuários por Profissão" subtitle="Base mockada para teste">
+          <ProfessionDistribution />
+        </ChartCard>
+        <ChartCard title="Desempenho por Anúncio" subtitle="Views x Cliques">
+          <AdsPerformance />
+        </ChartCard>
+        <ChartCard title="Distribuição de Usuários por Estado" subtitle="Base mockada para validação visual">
+          <UsersByState />
+        </ChartCard>
+        <ChartCard title="Cliques x Visualizações por Mês" subtitle="Comparativo mensal">
+          <ClicksViewsMonthly />
+        </ChartCard>
+       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+
+  <ChartCard title="Distribuição por Marca Favorita">
+    <FavoriteBrandDistribution />
+  </ChartCard>
+
+  <ChartCard title="Distribuição por Hobbies dos Usuários">
+    <FavoriteHobbyDistribution />
+  </ChartCard>
+
+  <ChartCard title="Distribuição por Redes Sociais Usadas">
+    <FavoriteSocialMediaDistribution />
+  </ChartCard>
+
+</div>
+<ChartCard title="Distribuição por Faixa Etária">
+    <AgeRangeDistribution />
+  </ChartCard>
+      </div>
+
     </div>
   );
 }

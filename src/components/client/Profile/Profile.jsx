@@ -33,7 +33,7 @@ export default function Profile() {
     
 
       {/* Dados da Empresa */}
-      <div className="bg-[#2c2c2e] p-6 rounded-lg shadow space-y-3">
+      <div className=" p-6 rounded-lg shadow space-y-3">
         <h3 className="text-lg font-semibold">Dados Cadastrais</h3>
         <p><strong>Empresa:</strong> {dados.nomeEmpresa}</p>
         <p><strong>Email:</strong> {dados.email}</p>
@@ -42,7 +42,7 @@ export default function Profile() {
       </div>
 
       {/* Saldo */}
-      <div className="bg-[#2c2c2e] p-6 rounded-lg shadow">
+      <div className=" p-6 rounded-lg shadow">
         <h3 className="text-lg font-semibold mb-2">Saldo Atual</h3>
         <p className="text-green-400 text-2xl font-bold">
           R$ {dados.saldo.toFixed(2)}

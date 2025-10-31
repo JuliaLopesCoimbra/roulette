@@ -27,8 +27,8 @@ export default function Ads() {
         {
             id: 3,
             tipo: "CPV",
-            titulo: "Aprenda a falar Inglês",
-            arquivo: "/video/ingles1.mp4",
+            titulo: "Eudora Maquiagem",
+            arquivo: "/video/eudora.mp4",
             dataCompra: "25/06/2025",
             diasRestantes: 5,
             ativo: true,
@@ -63,7 +63,7 @@ export default function Ads() {
             {anuncios.map((anuncio) => (
                 <div
                     key={anuncio.id}
-                    className="bg-[#2c2c2e] p-4 rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between"
+                    className="p-4 rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between"
                 >
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         {anuncio.tipo === "CPC" ? (
