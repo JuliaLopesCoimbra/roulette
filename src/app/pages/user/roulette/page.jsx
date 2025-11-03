@@ -559,16 +559,16 @@ const openAdOnce = () => {
       ) : (
         <>
           <h2 className="text-2xl font-bold text-[#fb4667]"> Parabéns! </h2>
-
+   <p className="text-gray-700">
+            Você ganhou um voucher da: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
+          </p>
           <img
             src={prizeWon.image}
             alt={prizeWon.name}
             className="w-28 h-28 object-contain mx-auto my-4 drop-shadow-md"
           />
 
-          <p className="text-gray-700">
-            Você ganhou um brinde da: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
-          </p>
+       
 
           {/* Cupom */}
           <div className="mt-4 flex items-center justify-center gap-2">
@@ -611,18 +611,20 @@ const openAdOnce = () => {
       bg-black/90
       overflow-hidden
     "
-    // Evita clicar/scrollar por baixo
     style={{ touchAction: "none" }}
   >
-    {/* Fundo em cover que SEMPRE preenche a tela */}
+    {/* Container full-viewport */}
     <div className="relative w-full h-[100dvh]">
-      <div
-        className="absolute inset-0 bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/img/bauducco.jpg')", backgroundSize: "cover" }}
-        onClick={e => {
-          // Clique no fundo não fecha enquanto estiver bloqueado
+      {/* Imagem sem corte (object-contain) */}
+      <img
+        src="/img/bauducco.jpg"
+        alt="Anúncio"
+        className="absolute inset-0 w-full h-full object-contain bg-black"
+        onClick={(e) => {
+          // Clique na imagem não fecha enquanto estiver bloqueado
           if (adClosable) setShowAdModal(false);
         }}
+        draggable={false}
       />
 
       {/* Botão fechar FIXO na viewport e com safe-area */}
@@ -673,6 +675,7 @@ const openAdOnce = () => {
     </div>
   </div>
 )}
+
 
 
       </motion.div>
