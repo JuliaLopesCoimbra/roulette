@@ -1,7 +1,7 @@
 // utils/api.js
 import { getUserToken } from "./auth";
 import { getClientToken } from "./auth";
-export const URL_BASE = "http://127.0.0.1:8000";
+export const URL_BASE = "http://54.233.30.252:8000";
 
 // utils/api.js
 async function http(path, init = {}) {
