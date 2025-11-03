@@ -2,7 +2,7 @@ const prizes = [
   { name: "Movida", image: "/img/prizes/movida.png" },
   { name: "Vivo", image: "/img/prizes/vivo.png" },
   { name: "Budweiser", image: "/img/prizes/budweiser.png" },
-  { name: "GloboPlay", image: "/img/prizes/globo.png" },
+  { name: "Não foi dessa vez", image: "/img/prizes/globo.png" },
   { name: "Bauducco", image: "/img/prizes/bauducco.png" },
   { name: "Trident", image: "/img/prizes/trident.png" },
   { name: "Superbet", image: "/img/prizes/superbet.png" },
