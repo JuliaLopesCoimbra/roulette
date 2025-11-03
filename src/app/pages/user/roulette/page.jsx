@@ -16,6 +16,7 @@ const MODEL_URL = "/roleta-animacoes.glb";
 const SPIN_SECONDS = 4.8; // duração total do giro
 const EXTRA_LOOPS = 4;    // voltas completas antes de parar
 const ROT_OFFSET_DEG = 0; // ajuste fino do zero, se precisar
+const SECTOR_CENTER = 0.5; // 0.5 = centro exato do setor
 
 /* =================== UTILS 3D =================== */
 function UseOrthoSync() {
@@ -127,6 +128,7 @@ function WheelModel({
   rotationOffsetDeg,
   onFinish, // chamado ao terminar o giro
   onReady,  // chamado quando o modelo/clip está pronto
+  reverseDirection = true
 }) {
   const groupRef = useRef(null);
   const { scene, animations } = useGLTF(MODEL_URL);
@@ -191,18 +193,21 @@ function WheelModel({
     processedTriggerRef.current = playTrigger;
 
     // Ajuste para alinhar o mark ao ponteiro (meio setor)
-    const offsetMarks = (rotationOffsetDeg / 360) * marksCount;
-    const idxAdjFloat = targetMark + offsetMarks;
-    const idxAdj = ((idxAdjFloat % marksCount) + marksCount) % marksCount;
+   // Ajuste para alinhar o mark ao ponteiro
+const offsetMarks = (rotationOffsetDeg / 360) * marksCount;
+const idxAdjFloat = targetMark + offsetMarks;
 
-    const framesPerMark = totalFramesRef.current / marksCount;
-    // +0.5 centraliza no meio do setor
-    const targetFrame = Math.round((idxAdj ) * framesPerMark) % totalFramesRef.current;
-    const targetTimeInClip = targetFrame / fpsRef.current;
+
+const idxAdj = ((idxAdjFloat % marksCount) + marksCount) % marksCount;
+// tempo do CENTRO do setor escolhido
+const targetTimeInClip = ((idxAdj + SECTOR_CENTER) / marksCount) * clip.duration;
+
 
     const totalCyclesTime = (extraLoops || 0) * clip.duration;
-    const finalTime = totalCyclesTime + targetTimeInClip;
-
+ const reverseTarget = (clip.duration - (targetTimeInClip % clip.duration)) % clip.duration;
+const finalTime = reverseDirection
+    ? -(totalCyclesTime + reverseTarget)  // ← tempo negativo (giro anti-horário)
+    :  (totalCyclesTime + targetTimeInClip);
     targetTimeInClipRef.current = targetTimeInClip;
     fromTimeRef.current = 0;
     finalTimeRef.current = finalTime;
@@ -228,7 +233,9 @@ function WheelModel({
       fromTimeRef.current + (finalTimeRef.current - fromTimeRef.current) * eased;
 
     const clipDur = clipRef.current.duration || 1e-6;
-    const timeInClip = currentAggTime % clipDur;
+     const timeInClip = reverseDirection  // normaliza para [0, D) mesmo com tempo negativo
+    ? ((currentAggTime % clipDur) + clipDur) % clipDur
+   : (currentAggTime % clipDur);
 
     actionRef.current.time = timeInClip;
     mixer.update(0);
@@ -362,7 +369,7 @@ export default function Roulette3D() {
 
     if (isRetry) {
       setHasSpun(false);
-      setTimeout(() => setShowModal(true), 200);
+      setTimeout(() => setShowModal(true), 1500);
       return;
     }
 
@@ -378,7 +385,7 @@ export default function Roulette3D() {
     const expiration = Date.now() + 3 * 60 * 60 * 1000;
     localStorage.setItem("roletaCooldown", expiration.toString());
 
-    setTimeout(() => setShowModal(true), 300);
+    setTimeout(() => setShowModal(true), 1500);
     setTimeout(() => setShowCooldownMessage(true), 1200);
   };
 const openAdOnce = () => {
@@ -423,6 +430,7 @@ const openAdOnce = () => {
                   rotationOffsetDeg={ROT_OFFSET_DEG}
                   onFinish={onSpinFinish}
                   onReady={() => setModelReady(true)}
+                  reverseDirection={true}
                 />
                 <Preload all />
               </Suspense>
@@ -550,7 +558,7 @@ const openAdOnce = () => {
         </>
       ) : (
         <>
-          <h2 className="text-2xl font-bold text-[#fb4667]">Parabéns!</h2>
+          <h2 className="text-2xl font-bold text-[#fb4667]"> Parabéns! </h2>
 
           <img
             src={prizeWon.image}
@@ -559,7 +567,7 @@ const openAdOnce = () => {
           />
 
           <p className="text-gray-700">
-            Você ganhou um voucher da: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
+            Você ganhou um brinde da: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
           </p>
 
           {/* Cupom */}

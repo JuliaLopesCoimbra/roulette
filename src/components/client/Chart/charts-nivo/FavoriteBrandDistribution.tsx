@@ -2,16 +2,24 @@
 import { ResponsiveCirclePacking } from "@nivo/circle-packing";
 import { NIVO_DARK_THEME } from "./theme";
 
-const data = {
-  name: "marcas",
+// Tipagem opcional dos nós (color é opcional)
+type BrandNode = {
+  id: string;
+  value?: number;
+  color?: string;
+  children?: BrandNode[];
+};
+
+const data: BrandNode = {
+  id: "marcas",
   children: [
-    { id: "Nike", value: 132, color: "#FACC15" },       // amarelo
-    { id: "Adidas", value: 98, color: "#22D3EE" },     // ciano
-    { id: "Puma", value: 64, color: "#A855F7" },       // roxo
-    { id: "Under Armour", value: 41, color: "#F43F5E" }, // rosa avermelhado
-    { id: "New Balance", value: 37, color: "#6366F1" }, // azul arroxeado
-    { id: "Asics", value: 26, color: "#10B981" },      // verde
-    { id: "Outra", value: 18, color: "#E5E7EB" },      // cinza claro
+    { id: "Nike", value: 132, color: "#FACC15" },
+    { id: "Adidas", value: 98,  color: "#22D3EE" },
+    { id: "Puma", value: 64,    color: "#A855F7" },
+    { id: "Under Armour", value: 41, color: "#F43F5E" },
+    { id: "New Balance", value: 37, color: "#6366F1" },
+    { id: "Asics", value: 26,   color: "#10B981" },
+    { id: "Outra", value: 18,   color: "#E5E7EB" },
   ],
 };
 
@@ -22,14 +30,18 @@ export default function FavoriteBrandDistribution() {
         data={data}
         theme={NIVO_DARK_THEME}
         margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-        // ✅ cada marca usa sua própria cor do dataset
-        colors={(node) => (node.data.color ? node.data.color : "#ffffff")}
+        // usa a cor do dataset quando existir; senão, fallback
+        colors={(node) =>
+          "color" in node.data && (node.data as BrandNode).color
+            ? (node.data as BrandNode).color!
+            : "#ffffff"
+        }
         padding={4}
-        leavesOnly={true}
-        enableLabels={true}
-        label={(node) => node.id}      // ⬅ mostra o nome dentro da bolha
+        leavesOnly
+        enableLabels
+        label={(node) => String(node.id)}
         labelTextColor="#ffffff"
-        labelSkipRadius={18}           // ⬅ só mostra texto em bolhas grandes (evita poluir)
+        labelsSkipRadius={18}   // <-- corrigido: era labelSkipRadius
         borderWidth={2}
         borderColor="rgba(255,255,255,0.25)"
         tooltip={(node) => (
@@ -42,9 +54,9 @@ export default function FavoriteBrandDistribution() {
               border: "1px solid rgba(255,255,255,0.15)",
             }}
           >
-            <strong>{node.id}</strong>
+            <strong>{String(node.id)}</strong>
             <br />
-            {node.value} usuários
+            {String(node.value)} usuários
           </div>
         )}
       />
