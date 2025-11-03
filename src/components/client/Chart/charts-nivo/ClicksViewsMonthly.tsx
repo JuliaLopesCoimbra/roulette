@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ResponsiveLine } from "@nivo/line";
+import type { PointTooltipProps } from "@nivo/line";
 import { NIVO_DARK_THEME } from "./theme";
 
 // Mock de dados por mês
@@ -26,7 +27,7 @@ const mockData = {
     { x: "04", views: 900, clicks: 230 },
     { x: "05", views: 1100, clicks: 310 },
   ],
-};
+} as const;
 
 export default function ClicksViewsMonthly() {
   const [month, setMonth] = useState<keyof typeof mockData>("Janeiro");
@@ -44,20 +45,34 @@ export default function ClicksViewsMonthly() {
     },
   ];
 
+  // (Opcional) Deixa o TS feliz com a tipagem do tooltip
+  const tooltip = ({ point }: PointTooltipProps<any>) => (
+    <div
+      style={{
+        background: "#0b0b0d",
+        padding: "8px 12px",
+        borderRadius: "8px",
+        border: "1px solid rgba(255,255,255,0.10)",
+        color: "white",
+        fontSize: "14px",
+      }}
+    >
+      <strong>{point.seriesId}</strong> <br />
+      Dia: {point.data.xFormatted} <br />
+      Valor: {point.data.yFormatted}
+    </div>
+  );
+
   return (
     <div className="w-full">
       {/* Select do mês */}
       <div className="flex justify-end mb-4">
-       <select
-  className="bg-[#0b0b0d] text-white px-3 py-2 rounded-lg border border-white/20 focus:outline-none"
-  style={{
-    WebkitAppearance: "none",
-    appearance: "none",
-  }}
-  value={month}
-  onChange={(e) => setMonth(e.target.value as keyof typeof mockData)}
->
-
+        <select
+          className="bg-[#0b0b0d] text-white px-3 py-2 rounded-lg border border-white/20 focus:outline-none"
+          style={{ WebkitAppearance: "none", appearance: "none" }}
+          value={month}
+          onChange={(e) => setMonth(e.target.value as keyof typeof mockData)}
+        >
           {Object.keys(mockData).map((m) => (
             <option key={m} value={m}>
               {m}
@@ -80,22 +95,7 @@ export default function ClicksViewsMonthly() {
           pointSize={10}
           useMesh={true}
           colors={(d) => (d.id === "Cliques" ? "#a855f7" : "#22d3ee")}
-          tooltip={({ point }) => (
-            <div
-              style={{
-                background: "#0b0b0d",
-                padding: "8px 12px",
-                borderRadius: "8px",
-                border: "1px solid rgba(255,255,255,0.10)",
-                color: "white",
-                fontSize: "14px",
-              }}
-            >
-              <strong>{point.serieId}</strong> <br />
-              Dia: {point.data.xFormatted} <br />
-              Valor: {point.data.yFormatted}
-            </div>
-          )}
+          tooltip={tooltip}
           legends={[
             {
               anchor: "bottom",
