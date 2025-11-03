@@ -101,7 +101,7 @@ export default function Step3Endereco({ onBack, isSubmitting }) {
             {...register("aceita_termos", { required: "Você precisa aceitar os termos de uso de dados." })}
             className="sr-only peer"
           />
-          <div className="w-5 h-5 bg-[#973bfe] rounded-full peer-checked:ring-2 peer-checked:ring-[#973bfe] peer-checked:border-4 peer-checked:border-black transition-all duration-200"></div>
+          <div className="w-5 h-5 bg-[#fb4667] rounded-full peer-checked:ring-2 peer-checked:ring-[#fb4667] peer-checked:border-4 peer-checked:border-black transition-all duration-200"></div>
         </label>
         <label className="text-sm">
           Eu aceito os <a href="#" className="underline">termos de uso de dados</a>.
@@ -120,7 +120,7 @@ export default function Step3Endereco({ onBack, isSubmitting }) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold"
+          className="px-4 py-2 bg-[#fb4667] text-white rounded hover:bg-[#fe3056] transition font-semibold"
         >
           {isSubmitting ? "Enviando..." : "Finalizar Cadastro"}
         </button>

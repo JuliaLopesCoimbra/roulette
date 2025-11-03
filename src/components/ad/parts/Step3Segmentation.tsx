@@ -24,7 +24,7 @@ export default function Step3Segmentation({
 
       <Segmentation />
 
-      <div className="p-6 bg-gray-800 rounded border border-gray-700 shadow mt-6">
+      <div className="p-6  rounded  shadow mt-6">
         <label className="block text-sm font-medium text-gray-200 mb-1">
           Localização do público-alvo
         </label>
@@ -40,7 +40,7 @@ export default function Step3Segmentation({
         </button>
         <button
           onClick={next}
-          className="flex-1 bg-yellow-500 hover:bg-yellow-600 py-3 rounded-lg font-semibold"
+          className="flex-1 bg-[#fb4667] hover:bg-[#f6234a] py-3 rounded-lg font-semibold"
         >
           Continuar →
         </button>

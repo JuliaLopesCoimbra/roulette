@@ -8,7 +8,7 @@ export default function ProgressDots({ step, total = 4 }) {
           <div
             key={idx}
             className={`w-1 h-1 rounded-full ${
-              step === idx ? "bg-[#973bfe]" : "bg-gray-600"
+              step === idx ? "bg-[#fb4667]" : "bg-gray-600"
             }`}
           />
         );

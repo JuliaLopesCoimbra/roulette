@@ -91,7 +91,7 @@ export default function ViewsChart() {
           showPopperArrow={false}
           placeholderText="Selecione a semana"
           calendarStartDay={1} // começa na segunda
-          className="bg-[#1f1f1f] border border-gray-600 text-white rounded px-3 py-1"
+          className="bg-[#ef0707] border border-gray-600 text-white rounded px-3 py-1"
         />
       </div>
 

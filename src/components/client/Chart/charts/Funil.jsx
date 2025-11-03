@@ -1,5 +1,5 @@
-// DashboardUsuarios.jsx
 "use client";
+import React from "react";
 import {
   LineChart,
   Line,
@@ -12,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+
 
 const dados = [
   { mes: "Jan", usuarios: 800, novos: 300, sessao: 5.2, conversoes: 120, cliques: 500, retencao: 60 },
@@ -34,98 +35,75 @@ dados.forEach((d) => {
 
 export default function Funil() {
   return (
-    <div className=" text-white p-6 space-y-8">
-      {/* <h2 className="text-2xl font-bold">Funil de Conversões</h2> */}
+    <div className="text-white p-6 space-y-8">
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={dados}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="mes" tick={{ fill: "#ccc" }} />
-            <YAxis tick={{ fill: "#ccc" }} />
-            <Tooltip />
-            <Legend />
-            <Line dataKey="usuarios" stroke="#3b82f6" name="Usuários Totais" />
-          </LineChart>
-        </ResponsiveContainer>
 
-        <ResponsiveContainer width="100%" height={250}>
+        {[
+          <LineChart data={dados}>
+            <Line dataKey="usuarios" name="Usuários" stroke="#3b82f6" strokeWidth={2} />
+          </LineChart>,
+
           <BarChart data={dados}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="mes" tick={{ fill: "#ccc" }} />
-            <YAxis tick={{ fill: "#ccc" }} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="novos" fill="#10b981" name="Novos Usuários" />
-          </BarChart>
-        </ResponsiveContainer>
+            <Bar dataKey="novos" name="Novos Usuários" fill="#10b981" />
+          </BarChart>,
 
-        <ResponsiveContainer width="100%" height={250}>
           <LineChart data={dados}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="mes" tick={{ fill: "#ccc" }} />
-            <YAxis tick={{ fill: "#ccc" }} />
-            <Tooltip />
-            <Legend />
-            <Line dataKey="sessao" stroke="#facc15" name="Tempo Sessão (min)" />
-          </LineChart>
-        </ResponsiveContainer>
+            <Line dataKey="sessao" name="Tempo de sessão (min)" stroke="#facc15" strokeWidth={2} />
+          </LineChart>,
 
-        <ResponsiveContainer width="100%" height={250}>
           <BarChart data={dados}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="mes" tick={{ fill: "#ccc" }} />
-            <YAxis tick={{ fill: "#ccc" }} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="conversoes" fill="#8b5cf6" name="Conversões" />
-          </BarChart>
-        </ResponsiveContainer>
+            <Bar dataKey="conversoes" name="Conversões" fill="#8b5cf6" />
+          </BarChart>,
 
-        <ResponsiveContainer width="100%" height={250}>
           <LineChart data={dados}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="mes" tick={{ fill: "#ccc" }} />
-            <YAxis tick={{ fill: "#ccc" }} />
-            <Tooltip />
-            <Legend />
-            <Line dataKey="cliques" stroke="#f97316" name="Cliques" />
-          </LineChart>
-        </ResponsiveContainer>
+            <Line dataKey="cliques" name="Cliques" stroke="#f97316" strokeWidth={2} />
+          </LineChart>,
 
-        <ResponsiveContainer width="100%" height={250}>
           <LineChart data={dados}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="mes" tick={{ fill: "#ccc" }} />
-            <YAxis tick={{ fill: "#ccc" }} />
-            <Tooltip />
-            <Legend />
-            <Line dataKey="conversao" stroke="#f87171" name="Taxa de Conversão (%)" />
-          </LineChart>
-        </ResponsiveContainer>
+            <Line dataKey="conversao" name="Taxa de Conversão (%)" stroke="#f87171" strokeWidth={2} />
+          </LineChart>,
 
-        <ResponsiveContainer width="100%" height={250}>
           <LineChart data={dados}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="mes" tick={{ fill: "#ccc" }} />
-            <YAxis tick={{ fill: "#ccc" }} />
-            <Tooltip />
-            <Legend />
-            <Line dataKey="retencao" stroke="#1e3a8a" name="Retenção (%)" />
-          </LineChart>
-        </ResponsiveContainer>
+            <Line dataKey="retencao" name="Retenção (%)" stroke="#1e3a8a" strokeWidth={2} />
+          </LineChart>,
 
-        <ResponsiveContainer width="100%" height={250}>
           <BarChart data={dados}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="mes" tick={{ fill: "#ccc" }} />
-            <YAxis tick={{ fill: "#ccc" }} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="cliques" fill="#3b82f6" name="Cliques" />
-            <Bar dataKey="conversoes" fill="#f43f5e" name="Conversões" />
-          </BarChart>
-        </ResponsiveContainer>
+            <Bar dataKey="cliques" name="Cliques" fill="#3b82f6" />
+            <Bar dataKey="conversoes" name="Conversões" fill="#f43f5e" />
+          </BarChart>,
+        ].map((chart, i) => (
+          <ResponsiveContainer key={i} width="100%" height={250}>
+            {React.cloneElement(
+              chart,
+              {},
+              <>
+                <CartesianGrid stroke="rgba(255,255,255,0.15)" />
+                <XAxis
+                  dataKey="mes"
+                  tick={{ fill: "#fff", fontSize: 12 }}
+                  axisLine={{ stroke: "rgba(255,255,255,0.4)" }}
+                  tickLine={{ stroke: "rgba(255,255,255,0.4)" }}
+                />
+                <YAxis
+                  tick={{ fill: "#fff", fontSize: 12 }}
+                  axisLine={{ stroke: "rgba(255,255,255,0.4)" }}
+                  tickLine={{ stroke: "rgba(255,255,255,0.4)" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "rgba(0,0,0,0.85)",
+                    borderRadius: 6,
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    color: "#fff",
+                  }}
+                />
+                <Legend />
+                {chart.props.children}
+              </>
+            )}
+          </ResponsiveContainer>
+        ))}
       </div>
     </div>
   );

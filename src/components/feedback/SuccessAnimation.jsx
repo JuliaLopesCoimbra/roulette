@@ -37,14 +37,14 @@ export default function SuccessAnimationAurora({
             {/* aurora/mesh com roxos e ciano leve */}
             <motion.div
               className="absolute inset-0"
-              style={{
-                background: `
-                  radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%),
-                  radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%),
-                  radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)
-                `,
-                filter: "saturate(110%)",
-              }}
+             style={{
+  background: `
+    radial-gradient(1200px 600px at 10% 10%, rgba(251, 70, 103, 0.25), transparent 60%),
+    radial-gradient(900px 500px at 90% 30%, rgba(251, 70, 103, 0.18), transparent 60%),
+    radial-gradient(800px 500px at 50% 85%, rgba(251, 70, 103, 0.15), transparent 60%),
+    #000000
+  `
+}}
               animate={
                 prefersReduced
                   ? undefined
@@ -105,7 +105,7 @@ export default function SuccessAnimationAurora({
 
               {/* círculo central (glow) */}
               <motion.div
-                className="relative bg-[#973bfe] w-24 h-24 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(151,59,254,0.6)]"
+                className="relative bg-[#fb4667] w-24 h-24 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(151,59,254,0.6)]"
                 initial={{ scale: 0 }}
                 animate={{ scale: [0.8, 1.1, 1] }}
                 transition={{ duration: 0.6, ease: "easeOut" }}

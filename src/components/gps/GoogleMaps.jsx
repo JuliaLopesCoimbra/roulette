@@ -63,7 +63,7 @@ const MapaGoogle = () => {
                     renderTrack={({ props, children }) => (
                         <div
                             {...props}
-                            className="h-2 w-full rounded-full bg-gray-600 mt-4 mb-2"
+                            className="h-2 w-full rounded-full  mt-4 mb-2"
                             style={{
                                 ...props.style,
                                 background: `linear-gradient(to right,
@@ -79,13 +79,13 @@ const MapaGoogle = () => {
                     renderThumb={({ props }) => (
                         <div
                             {...props}
-                            className="h-4 w-4 rounded-full bg-yellow-400 border-2 border-white shadow cursor-pointer"
+                            className="h-4 w-4 rounded-full bg-[#fb4667] border-2 border-white shadow cursor-pointer"
                         />
                     )}
                 />
 
                 <p className="text-sm text-gray-300">
-                    Raio selecionado: <span className="text-yellow-400 font-semibold">{values[0]} km</span>
+                        Raio selecionado: <span className="text-[#fb4667] font-semibold">{values[0]} km</span>
                 </p>
 
             </div>

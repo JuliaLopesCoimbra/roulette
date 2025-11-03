@@ -20,16 +20,20 @@ export default function Business() {
   return (
     <div
       className="relative min-h-screen overflow-hidden"
-      style={{
-        background:
-          "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.15), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%), #0b0b0d",
-      }}
+     style={{
+  background: `
+    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
+    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
+    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
+    #000000
+  `
+}}
     >
       {/* ✅ BOTÃO VOLTAR */}
       <div className="absolute top-6 left-6 z-10">
         <button
           onClick={() => router.back()}                // <-- AQUI ESTÁ A FUNÇÃO DE VOLTAR
-          className="text-[#973bfe] hover:text-purple-900 transition"
+          className="text-[#fb4667] hover:text-[#f8254b] transition"
           aria-label="Voltar"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -51,7 +55,7 @@ export default function Business() {
           <div className="flex space-x-4 justify-center">
             <button
               onClick={() => handleSelect("cpv")}
-              className="px-6 py-3 bg-purple-900 hover:bg-purple-700 text-white font-semibold rounded-lg transition"
+                className="px-6 py-3 bg-[#fb4667] hover:bg-[#ef163e] text-white font-semibold rounded-lg transition"
             >
               Anúncio por Visualizações (CPV)
             </button>

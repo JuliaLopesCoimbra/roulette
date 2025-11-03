@@ -51,7 +51,7 @@ export default function VideoCenterPage({ videoSrc }) {
       {/* 🔝 Barra de Progresso */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gray-700 z-20">
         <div
-          className="h-full bg-[#973bfe] transition-all duration-100"
+          className="h-full bg-[#fb4667] transition-all duration-100"
           style={{ width: `${progress}%` }}
         />
       </div>

@@ -18,8 +18,8 @@ export default function Ads() {
         {
             id: 2,
             tipo: "CPC",
-            titulo: "Curso de Inglês Online",
-            arquivo: "/img/inglesAd.jpeg",
+            titulo: "Bauducco Anuncio 2025",
+            arquivo: "/img/bauducco.jpg",
             dataCompra: "27/06/2025",
             diasRestantes: 8,
             ativo: false,
@@ -27,8 +27,8 @@ export default function Ads() {
         {
             id: 3,
             tipo: "CPV",
-            titulo: "Eudora Maquiagem",
-            arquivo: "/video/eudora.mp4",
+            titulo: "Coca Libertadores 2025",
+            arquivo: "/video/coca.mp4",
             dataCompra: "25/06/2025",
             diasRestantes: 5,
             ativo: true,

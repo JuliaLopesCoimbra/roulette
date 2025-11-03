@@ -146,7 +146,7 @@ export default function Step1Empresa({ step, onNext }) {
         <button
           type="button"
           onClick={handleNext}
-          className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold disabled:opacity-60"
+          className="px-4 py-2 bg-[#fb4667] text-white rounded hover:bg-[#fe3157] transition font-semibold disabled:opacity-60"
           disabled={checkingCnpj}
         >
           {checkingCnpj ? "Verificando..." : "Continuar"}

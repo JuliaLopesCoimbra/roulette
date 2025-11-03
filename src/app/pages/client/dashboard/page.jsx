@@ -71,10 +71,14 @@ const renderComponent = () => {
   return (
     <div
       className="h-screen w-screen flex overflow-hidden text-white"
-      style={{
-        background:
-          "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.15), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%), #0b0b0d",
-      }}
+       style={{
+  background: `
+    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
+    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
+    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
+    #000000
+  `
+}}
     >
       {/* Sidebar */}
     <aside className="w-64 flex-shrink-0 px-5 py-8 backdrop-blur-xl bg-white/5 border-r border-white/10 flex flex-col">
@@ -92,7 +96,10 @@ const renderComponent = () => {
         key={item.key}
         onClick={() => setSelected(item.key)}
         className={`w-full text-left px-4 py-2 rounded-lg transition font-medium ${
-          selected === item.key ? "bg-yellow-500 text-black shadow-md" : "hover:bg-white/10"
+          selected === item.key
+  ? "bg-white/20 text-white backdrop-blur-md"
+  : "hover:bg-white/10"
+
         }`}
       >
         {item.label}

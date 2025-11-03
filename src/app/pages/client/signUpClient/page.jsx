@@ -121,7 +121,7 @@ export default function SignUpEmpresa() {
       <div className="absolute top-6 left-6 z-10">
         <button
           onClick={() => (step === 1 ? router.back() : prevStep())}
-          className="text-[#973bfe] hover:text-purple-900 transition"
+          className="text-[#fb4667] hover:text-[#fb4667] transition"
           aria-label="Voltar"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -133,11 +133,14 @@ export default function SignUpEmpresa() {
       <motion.div
         {...fadeIn(0)}
         className="min-h-screen flex items-center justify-center px-4 font-[Roboto]"
-        style={{
-          // mesmo background do seu CadastroFormUser
-          background:
-            "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
-        }}
+         style={{
+  background: `
+    radial-gradient(1200px 600px at 10% 10%, rgba(251, 70, 103, 0.25), transparent 60%),
+    radial-gradient(900px 500px at 90% 30%, rgba(251, 70, 103, 0.18), transparent 60%),
+    radial-gradient(800px 500px at 50% 85%, rgba(251, 70, 103, 0.15), transparent 60%),
+    #000000
+  `
+}}
       >
        {showSuccess && (
    <SuccessAnimationAurora

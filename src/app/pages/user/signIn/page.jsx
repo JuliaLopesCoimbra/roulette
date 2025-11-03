@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import Header from "../../../../components/header/public/Header";
 import { api } from "../../../../utils/api";
 import { setUserToken } from "../../../../utils/auth";
 
@@ -77,24 +76,28 @@ export default function SignIn() {
     <motion.div
       {...fadeIn(0)}
       className="min-h-screen flex items-center justify-center px-4 font-[Roboto]"
-      style={{
-        background:
-          "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
-      }}
+  style={{
+  background: `
+    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
+    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
+    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
+    #000000
+  `
+}}
     >
       {/* CARD DO FORM */}
       <motion.div
         initial={{ opacity: 0, scale: 0.92 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md  backdrop-blur-xl px-8 py-10 rounded-2xl shadow-2xl border border-[#ffffff0d] text-white"
+        className="w-full max-w-md   px-8 py-10 rounded-2xl shadow-2xl text-white"
       >
         {/* LOGO */}
         <div className="flex justify-center mb-6">
           <img
-            src="/img/logo/gluck_logo.png"
+            src="/img/logo/adword.png"
             alt="Muscle Club"
-            className="h-25 w-auto opacity-95"
+            className="h-10 w-auto opacity-95"
           />
         </div>
 
@@ -108,7 +111,7 @@ export default function SignIn() {
             <label className="text-sm text-gray-200">Email</label>
             <input
               {...register("email", { required: "Campo obrigatório" })}
-              className="w-full p-3 rounded-lg bg-[#2c2c2e] text-white placeholder:text-gray-400 border border-transparent focus:border-purple-500 focus:outline-none transition"
+              className="w-full p-3 rounded-lg bg-[#2c2c2e] text-white placeholder:text-gray-400 border border-transparent focus:border-[#fb4667] focus:outline-none transition"
               placeholder="exemplo@email.com"
               autoComplete="off"
               type="email"
@@ -120,7 +123,7 @@ export default function SignIn() {
             <label className="text-sm text-gray-200">Senha</label>
             <input
               {...register("senha", { required: "Campo obrigatório" })}
-              className="w-full p-3 rounded-lg bg-[#2c2c2e] text-white placeholder:text-gray-400 border border-transparent focus:border-purple-500 focus:outline-none transition"
+              className="w-full p-3 rounded-lg bg-[#2c2c2e] text-white placeholder:text-gray-400 border border-transparent focus:border-[#fb4667] focus:outline-none transition"
               placeholder="••••••••"
               type="password"
               autoComplete="off"
@@ -133,14 +136,14 @@ export default function SignIn() {
             type="submit"
             disabled={isSubmitting}
             className="w-full py-3 rounded-lg font-semibold text-white transition disabled:opacity-60
-              bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90"
+              bg-gradient-to-r from-[#fb4667] to-[#cb062a] hover:opacity-90"
           >
             {isSubmitting ? "Entrando..." : "Entrar"}
           </button>
 
           <p className="text-sm text-gray-300 text-center mt-3">
             Não tem conta?{" "}
-            <a href="/pages/user/signUp" className="text-purple-400 font-semibold hover:underline">
+            <a href="/pages/user/signUp" className="text-[#fb4667] font-semibold hover:underline">
               Registre-se
             </a>
           </p>

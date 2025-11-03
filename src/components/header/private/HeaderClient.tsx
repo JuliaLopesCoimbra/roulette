@@ -21,15 +21,22 @@ export default function Header({
   return (
     <header
       className="w-full h-16 flex items-center justify-between px-6 border-b border-white/10 bg-white/5 backdrop-blur-xl"
-      style={{
-        background:
-          "linear-gradient(90deg, rgba(124,58,237,0.12), rgba(14,165,233,0.10))",
+       style={{
+        background: `
+    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
+    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
+    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
+    #000000
+  `
       }}
     >
-      {/* Título da página */}
-      <h2 className="text-lg font-semibold tracking-wide text-white">
-        Área do Cliente
-      </h2>
+        <div className="flex justify-center ">
+          <img
+            src="/img/logo/adword.png"
+            alt="Muscle Club"
+            className="h-10 w-auto opacity-95"
+          />
+        </div>
 
       {/* Right section */}
       <div className="flex items-center gap-6">
@@ -37,7 +44,7 @@ export default function Header({
         {/* ✅ Botão Criar Anúncio */}
         <button
           onClick={goToBusiness}
-          className="flex items-center gap-2 bg-yellow-500 text-black px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 active:scale-95 transition"
+          className="flex items-center gap-2 bg-white/20 text-white backdrop-blur-md px-4 py-2 rounded-lg font-medium hover:bg-white/10 active:scale-95 transition"
         >
           <Plus size={18} />
           Inserir anúncio

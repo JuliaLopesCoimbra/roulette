@@ -110,7 +110,7 @@ export default function Step4Preferencias({
   return (
     <>
       <div className="absolute top-10 z-10">
-        <button onClick={() => setStep(3)} className="text-[#973bfe] hover:text-purple-900">
+        <button onClick={() => setStep(3)} className="text-[#fb4667] hover:text-[#ff2f55]">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
             strokeWidth={2} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -272,7 +272,7 @@ export default function Step4Preferencias({
             })}
             className="sr-only peer"
           />
-          <div className="w-5 h-5 bg-[#973bfe] rounded-full peer-checked:ring-2 peer-checked:ring-[#973bfe] peer-checked:border-4 peer-checked:border-black transition-all duration-200"></div>
+          <div className="w-5 h-5 bg-[#fb4667] rounded-full peer-checked:ring-2 peer-checked:ring-[#fb4667] peer-checked:border-4 peer-checked:border-black transition-all duration-200"></div>
         </label>
         <label className="text-sm">
           Eu aceito os{" "}
@@ -300,7 +300,7 @@ export default function Step4Preferencias({
             if (ok) onSubmit();
           }}
           disabled={isSubmitting}
-          className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold"
+          className="px-4 py-2 bg-[#fb4667] text-white rounded hover:bg-[#ff385c] transition font-semibold"
         >
           {isSubmitting ? "Enviando..." : "Finalizar Cadastro"}
         </button>

@@ -278,7 +278,7 @@ export default function Step2Budget({ goal, next, back }: Props) {
           type="submit"
           disabled={!canContinue}
           className={`flex-1 py-3 rounded-lg font-semibold transition
-            ${canContinue ? "bg-yellow-500 hover:bg-yellow-600" : "bg-white/10 cursor-not-allowed"}`}
+            ${canContinue ? "bg-[#fb4667] hover:bg-[#fc3358]" : "bg-white/10 cursor-not-allowed"}`}
         >
           Continuar →
         </button>

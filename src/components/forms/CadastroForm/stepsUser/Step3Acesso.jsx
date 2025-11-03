@@ -63,7 +63,7 @@ export default function Step3Credenciais({ step, setStep }) {
   return (
     <>
       <div className="absolute top-10 z-10">
-        <button onClick={() => setStep(2)} className="text-[#973bfe] hover:text-purple-900">
+        <button onClick={() => setStep(2)} className="text-[#fb4667] hover:text-[#ff2c53]">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                strokeWidth={2} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -78,7 +78,7 @@ export default function Step3Credenciais({ step, setStep }) {
             required: "Campo obrigatório",
             validate: (v) => validarEmail(v) || "Email inválido",
           })}
-          className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border border-transparent focus:border-[#973bfe] focus:outline-none"
+          className="w-full p-2 rounded-md bg-[#ffffff] text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
           placeholder="exemplo@email.com"
           type="email"
           autoComplete="email"
@@ -101,7 +101,7 @@ export default function Step3Credenciais({ step, setStep }) {
                   "Senha fraca: precisa de 1 maiúscula, 1 minúscula, 1 número e 1 caractere especial",
             },
           })}
-          className="w-full p-2 pr-10 rounded-md bg-[#2c2c2e] text-white border border-transparent focus:border-[#973bfe] focus:outline-none"
+          className="w-full p-2 pr-10 rounded-md bg-[#ffffff] text-black border border-transparent focus:border-[#fb4667] focus:outline-none"
           placeholder="Crie uma senha forte"
           autoComplete="new-password"
         />
@@ -140,7 +140,7 @@ export default function Step3Credenciais({ step, setStep }) {
             required: "Campo obrigatório",
             validate: (v) => v === senha || "As senhas não coincidem",
           })}
-          className="w-full p-2 pr-10 rounded-md bg-[#2c2c2e] text-white border border-transparent focus:border-[#973bfe] focus:outline-none"
+          className="w-full p-2 pr-10 rounded-md bg-[#ffffff] text-black border border-transparent focus:border-[#fb4667] focus:outline-none"
           placeholder="Repita sua senha"
           autoComplete="new-password"
         />
@@ -178,7 +178,7 @@ export default function Step3Credenciais({ step, setStep }) {
         <button
           type="button"
           onClick={handleNext}
-          className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold disabled:opacity-60"
+          className="px-4 py-2 bg-[#fb4667] text-white rounded hover:bg-[#fd224a] transition font-semibold disabled:opacity-60"
           disabled={checkingEmail}
         >
           {checkingEmail ? "Verificando..." : "Avançar"}

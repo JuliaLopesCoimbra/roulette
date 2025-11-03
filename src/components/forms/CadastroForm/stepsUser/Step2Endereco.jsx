@@ -25,7 +25,7 @@ export default function Step2Endereco({ step, setStep }) {
   return (
     <>
       <div className="absolute top-10 z-10">
-        <button onClick={() => setStep(1)} className="text-[#973bfe] hover:text-purple-900">
+        <button onClick={() => setStep(1)} className="text-[#fb4667] hover:text-[#ff2d53]">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                strokeWidth={2} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -37,7 +37,7 @@ export default function Step2Endereco({ step, setStep }) {
         <label>CEP</label>
         <input
           {...register("cep", { required: "Campo obrigatório", onChange: handleCEPChange })}
-          className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border border-transparent focus:border-[#973bfe] focus:outline-none"
+          className="w-full p-2 rounded-md bg-[#ffffff] text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
           placeholder="Digite seu CEP"
         />
         {errors.cep && <p className="text-[#ef4444] text-sm">{errors.cep.message}</p>}
@@ -45,14 +45,14 @@ export default function Step2Endereco({ step, setStep }) {
 
       <div>
         <label>Rua</label>
-        <input {...register("rua")} className="w-full p-2 rounded-md bg-[#2c2c2e] text-white border border-gray-700" placeholder="Rua" readOnly />
+        <input {...register("rua")} className="w-full p-2 rounded-md bg-[#ffffff] text-black border border-gray-700 focus:border-[#fb4667]" placeholder="Rua" readOnly />
       </div>
 
       <div>
         <label>Número</label>
         <input
           {...register("numero", { required: "Campo obrigatório" })}
-          className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border border-transparent focus:border-[#973bfe] focus:outline-none"
+          className="w-full p-2 rounded-md bg-[#ffffff] text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
           placeholder="Número da residência"
         />
         {errors.numero && <p className="text-[#ef4444] text-sm">{errors.numero.message}</p>}
@@ -60,17 +60,17 @@ export default function Step2Endereco({ step, setStep }) {
 
       <div>
         <label>Bairro</label>
-        <input {...register("bairro")} className="w-full p-2 rounded-md bg-[#2c2c2e] text-white border border-gray-700" placeholder="Bairro" readOnly />
+        <input {...register("bairro")} className="w-full p-2 rounded-md bg-[#ffffff] text-black border border-gray-700 focus:border-[#fb4667]" placeholder="Bairro" readOnly />
       </div>
 
       <div>
         <label>Cidade</label>
-        <input {...register("cidade")} className="w-full p-2 rounded-md bg-[#2c2c2e] text-white border border-gray-700" placeholder="Cidade" readOnly />
+        <input {...register("cidade")} className="w-full p-2 rounded-md bg-[#ffffff] text-black border border-gray-700 focus:border-[#fb4667]" placeholder="Cidade" readOnly />
       </div>
 
       <div>
         <label>Estado</label>
-        <input {...register("estado")} className="w-full p-2 rounded-md bg-[#2c2c2e] text-white border border-gray-700" placeholder="Estado" readOnly />
+        <input {...register("estado")} className="w-full p-2 rounded-md bg-[#ffffff] text-black border border-gray-700 focus:border-[#fb4667]" placeholder="Estado" readOnly />
       </div>
 
       <ProgressDots step={step} />
@@ -82,7 +82,7 @@ export default function Step2Endereco({ step, setStep }) {
             const ok = await trigger(["cep", "rua", "numero", "bairro", "cidade", "estado"]);
             if (ok) setStep(3);
           }}
-          className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold"
+          className="px-4 py-2 bg-[#fb4667] text-white rounded hover:bg-[#fd2d53] transition font-semibold"
         >
           Avançar
         </button>

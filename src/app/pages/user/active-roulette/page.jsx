@@ -66,7 +66,15 @@ export default function ActiveRoulettePage() {
     })();
   }, [router]);
   return (
-    <div className="relative min-h-screen text-white">
+    <div className="relative min-h-screen text-white" style={{
+  background: `
+    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
+    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
+    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
+    #000000
+  `
+}}
+>
          <header className="relative mx-auto w-full max-w-2xl px-5 pt-5">
         <div className="flex items-center justify-end gap-3">
           {loadingUser ? (
@@ -89,10 +97,7 @@ export default function ActiveRoulettePage() {
       <div
         aria-hidden
         className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(1000px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
-        }}
+      
       />
       <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-md items-center px-5">
         <motion.div

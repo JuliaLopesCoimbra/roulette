@@ -37,7 +37,7 @@ export default function Analytics() {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Análises e Sugestões</h2>
 
-      <div className="bg-[#2c2c2e] p-6 rounded-lg shadow">
+      <div className="p-6 ">
         <p className="text-sm text-gray-300 mb-4">
           Veja o desempenho de cada anúncio com sugestões práticas para melhorar resultados.
         </p>
@@ -45,7 +45,7 @@ export default function Analytics() {
         <div className="overflow-x-auto">
           <table className="min-w-full text-left">
             <thead>
-              <tr className="text-sm text-gray-400 border-b border-gray-700">
+              <tr className="text-sm text-gray-400 border-b border-gray-100">
                 <th className="py-2 px-4">Anúncio</th>
                 <th className="py-2 px-4">Tipo</th>
                 <th className="py-2 px-4">Views</th>
@@ -57,7 +57,7 @@ export default function Analytics() {
             </thead>
             <tbody>
               {dados.map((item, i) => (
-                <tr key={i} className="border-b border-gray-800 hover:bg-[#3f3f46] transition">
+                <tr key={i} className="border-b border-gray-400 transition">
                   <td className="py-2 px-4">{item.nome}</td>
                   <td className="py-2 px-4">{item.tipo}</td>
                   <td className="py-2 px-4">{item.views}</td>

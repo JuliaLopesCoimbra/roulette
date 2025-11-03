@@ -30,7 +30,7 @@ function Chips({
       <label className="flex items-center mb-2">
         <input
           type="checkbox"
-          className="form-checkbox text-yellow-500"
+          className="form-checkbox text-[#fb4667]"
           onChange={(e) => setShow(e.target.checked)}
         />
         <span className="ml-2">{label}</span>
@@ -51,7 +51,7 @@ function Chips({
             <button
               type="button"
               onClick={add}
-              className="bg-yellow-500 text-gray-900 px-4 rounded hover:bg-yellow-600"
+              className="bg-[#fb4667] text-white px-4 rounded hover:bg-[#fb4667]"
             >
               Adicionar
             </button>
@@ -67,7 +67,7 @@ function Chips({
             {items.map((v) => (
               <span
                 key={v}
-                className="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-sm flex items-center gap-1"
+                className="bg-[#fb4667] text-white px-3 py-1 rounded-full text-sm flex items-center gap-1"
               >
                 {v}
                 <button onClick={() => remove(v)} className="text-red-600 font-bold">
@@ -87,7 +87,7 @@ export default function Segmentation() {
   const [gender, setGender] = useState<"todos" | "feminino" | "masculino">("todos");
 
   return (
-    <div className="p-6 bg-gray-800 rounded border border-gray-700 shadow">
+    <div className="p-6  rounded  shadow">
       <p className="text-large text-gray-300 mb-4 font-bold">
         Segmentação (interesses, faixa etária e perfil)
       </p>
@@ -133,27 +133,27 @@ export default function Segmentation() {
           min={MIN}
           max={MAX}
           onChange={setValues}
-          renderTrack={({ props, children }) => {
-            // 👇 Removendo 'key' do spread
-            const { key, style, ...rest } = (props as any);
-            return (
-              <div
-                key={key}
-                {...rest}
-                className="h-2 w-full rounded-full"
-                style={{
-                  ...style,
-                  background: `linear-gradient(to right, 
-                    #4b5563 ${((values[0] - MIN) / (MAX - MIN)) * 100}%,
-                    #facc15 ${((values[0] - MIN) / (MAX - MIN)) * 100}%,
-                    #facc15 ${((values[1] - MIN) / (MAX - MIN)) * 100}%,
-                    #4b5563 ${((values[1] - MIN) / (MAX - MIN)) * 100}%)`,
-                }}
-              >
-                {children}
-              </div>
-            );
-          }}
+         renderTrack={({ props, children }) => {
+  const { key, style, ...rest } = (props as any);
+  return (
+    <div
+      key={key}
+      {...rest}
+      className="h-2 w-full rounded-full"
+      style={{
+        ...style,
+        background: `linear-gradient(to right, 
+          #4b5563 ${((values[0] - MIN) / (MAX - MIN)) * 100}%,
+          #fb4667 ${((values[0] - MIN) / (MAX - MIN)) * 100}%,
+          #fb4667 ${((values[1] - MIN) / (MAX - MIN)) * 100}%,
+          #4b5563 ${((values[1] - MIN) / (MAX - MIN)) * 100}%)`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}}
+
           renderThumb={({ props }) => {
             // 👇 Removendo 'key' do spread
             const { key, ...rest } = (props as any);
@@ -161,12 +161,12 @@ export default function Segmentation() {
               <div
                 key={key}
                 {...rest}
-                className="h-4 w-4 rounded-full bg-yellow-400 border-2 border-white shadow cursor-pointer"
+                className="h-4 w-4 rounded-full bg-[#fb4667] border-2 border-white shadow cursor-pointer"
               />
             );
           }}
         />
-        <div className="flex justify-between mt-3 text-sm text-yellow-400 font-semibold">
+        <div className="flex justify-between mt-3 text-sm text-[#fb4667] font-semibold">
           <span>{values[0]} anos</span>
           <span>{values[1]} anos</span>
         </div>
@@ -184,7 +184,7 @@ export default function Segmentation() {
                 value={g}
                 checked={gender === g}
                 onChange={(e) => setGender(e.target.value as any)}
-                className="form-radio text-yellow-500 focus:ring-yellow-500"
+                className="form-radio text-[#fb4667] focus:ring-[#fb4667]"
               />
               <span className="ml-2 capitalize">{g}</span>
             </label>

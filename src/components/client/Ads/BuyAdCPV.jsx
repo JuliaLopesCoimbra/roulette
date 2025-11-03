@@ -18,14 +18,14 @@ export default function BuyAdCPV() {
   return (
     <div
       className="fixed inset-0 grid grid-rows-[auto,1fr] text-white"
-      style={{
-        background: `
-          radial-gradient(1000px 600px at 10% 10%, rgba(139,92,246,0.15), transparent 60%),
-          radial-gradient(900px 500px at 90% 30%, rgba(79,70,229,0.18), transparent 60%),
-          radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.14), transparent 60%),
-          #0B0B0D
-        `,
-      }}
+       style={{
+  background: `
+    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
+    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
+    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
+    #000000
+  `
+}}
     >
       <header className="relative z-50 h-16 px-4 sm:px-6 flex items-center justify-center">
         <div className="w-[80vw] max-w-3xl mx-auto">
@@ -35,7 +35,7 @@ export default function BuyAdCPV() {
           </div>
           <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mt-1">
             <div
-              className="h-full bg-yellow-500 transition-all"
+              className="h-full bg-[#fb4667] transition-all"
               style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
             />
           </div>

@@ -77,10 +77,12 @@ export default function Dashboard() {
     }, [router]);
     const go = (href) => { setMenuOpen(false); router.push(href); };
     return (
-        <div className="min-h-screen p-4 text-gray-100" style={{
-            background:
-                "radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.25), transparent 60%), radial-gradient(900px 500px at 90% 30%, rgba(34,211,238,0.18), transparent 60%), radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%)",
-        }}
+        <div className="min-h-screen p-4 text-gray-100" style={{ background: `
+    radial-gradient(1200px 600px at 10% 10%, rgba(251, 70, 103, 0.25), transparent 60%),
+    radial-gradient(900px 500px at 90% 30%, rgba(251, 70, 103, 0.18), transparent 60%),
+    radial-gradient(800px 500px at 50% 85%, rgba(251, 70, 103, 0.15), transparent 60%),
+    #000000
+  `,}}
         >
             <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
                 <button onClick={() => setMenuOpen(true)} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition">
@@ -153,14 +155,17 @@ export default function Dashboard() {
            <AnimatePresence>
                  {menuOpen && (
                    <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50">
-                     <div className="absolute inset-0 " style={{ background: `
-             radial-gradient(1000px 600px at 15% 15%, rgba(124,58,237,0.25), transparent 60%),
-             radial-gradient(900px 500px at 85% 25%, rgba(34,211,238,0.18), transparent 60%),
-             radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%),
-             radial-gradient(circle at center, rgba(10,15,35,0.95) 0%, rgba(15,23,42,1) 100%)
-           `,}}onClick={() => setMenuOpen(false)} />
+                     <div className="absolute inset-0 " style={{
+  background: `
+    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
+    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
+    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
+    #000000
+  `
+}}
+onClick={() => setMenuOpen(false)} />
                      <motion.aside initial={{x:-320}} animate={{x:0}} exit={{x:-320}} transition={{type:"spring", stiffness:300, damping:30}}
-                       className="relative z-10 h-full w-[85%] max-w-sm border-r border-white/10 bg-[#0f172a]/80 backdrop-blur-xl p-5">
+                       className="relative z-10 h-full w-[85%] max-w-sm border-r border-white/10  backdrop-blur-xl p-5">
                        <div className="mb-6 flex items-center justify-between">
                          <div>
                            <p className="text-xs text-white/70">{user.email}</p>

@@ -12,7 +12,7 @@ export default function FileUpload() {
   };
 
   return (
-    <div className="p-6 bg-gray-800 rounded border border-gray-700 shadow">
+    <div className="p-6 bg-black/30 border border-white/10 rounded  shadow">
       <label className="block text-sm font-medium text-gray-200 mb-2">
         Upload do Criativo (imagem ou vídeo)
       </label>
@@ -20,7 +20,7 @@ export default function FileUpload() {
       <button
         type="button"
         onClick={open}
-        className="px-4 py-2 bg-gray-700 hover:bg-yellow-500 hover:text-gray-900 text-gray-100 rounded transition"
+        className="px-4 py-2 bg-black/20 hover:bg-[#fb4667] hover:text-gray-900 text-gray-100 rounded transition"
       >
         Selecionar Arquivo
       </button>

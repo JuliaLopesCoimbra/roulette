@@ -9,7 +9,7 @@ export default function Step4Review({ back }: { back: () => void }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -40 }}
       transition={{ duration: 0.45 }}
-      className="max-w-2xl w-full p-8 md:p-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl"
+      className="max-w-2xl w-full p-8 md:p-10  border border-white/10 rounded-2xl shadow-xl"
     >
       <h2 className="text-2xl md:text-3xl font-bold mb-2">Revisar & Confirmar</h2>
       <p className="text-gray-300 mb-6">
@@ -19,19 +19,19 @@ export default function Step4Review({ back }: { back: () => void }) {
       {/* Placeholder: quando elevarmos estado, renderizamos os dados reais aqui */}
       <div className="space-y-3 text-sm text-gray-200">
         <div className="flex justify-between border-b border-white/10 pb-2">
-          <span>Nome da campanha</span><span className="text-yellow-400">—</span>
+          <span>Nome da campanha</span><span className="text-[#fb4667]">—</span>
         </div>
         <div className="flex justify-between border-b border-white/10 pb-2">
-          <span>Orçamento</span><span className="text-yellow-400">—</span>
+          <span>Orçamento</span><span className="text-[#fb4667]">—</span>
         </div>
         <div className="flex justify-between border-b border-white/10 pb-2">
-          <span>Período</span><span className="text-yellow-400">—</span>
+          <span>Período</span><span className="text-[#fb4667]">—</span>
         </div>
         <div className="flex justify-between border-b border-white/10 pb-2">
-          <span>Segmentação</span><span className="text-yellow-400">—</span>
+          <span>Segmentação</span><span className="text-[#fb4667]">—</span>
         </div>
         <div className="flex justify-between pb-2">
-          <span>Área/Mapa</span><span className="text-yellow-400">—</span>
+          <span>Área/Mapa</span><span className="text-[#fb4667]">—</span>
         </div>
       </div>
 
@@ -43,7 +43,7 @@ export default function Step4Review({ back }: { back: () => void }) {
           ← Voltar
         </button>
         <button
-          className="flex-1 bg-yellow-500 hover:bg-yellow-600 py-3 rounded-lg font-semibold"
+          className="flex-1 bg-[#fb4667] hover:bg-[#ff2a51] py-3 rounded-lg font-semibold"
           type="button"
           onClick={() => alert("Compra confirmada! (wire real depois)")}
         >

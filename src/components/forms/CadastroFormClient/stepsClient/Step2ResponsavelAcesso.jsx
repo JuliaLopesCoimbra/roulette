@@ -12,7 +12,6 @@ const hasTwoNames = (v = "") => {
     );
   return words.length >= 2;
 };
-
 // === mascaras já existentes ===
 const maskCPF = (v = "") =>
   v
@@ -126,31 +125,30 @@ export default function Step2ResponsavelAcesso({ onNext, onBack }) {
       </p>
 
       {/* Nome do responsável */}
-      <div>
-        <label className="block mb-1 text-sm font-medium">Responsável pela empresa</label>
-        <input
-          {...register("responsable_name", {
-            required: "Campo obrigatório",
-            validate: (v) => hasTwoNames(v) || "Digite nome e sobrenome completos",
-          })}
-          onBlur={(e) => {
-            const norm = e.target.value
-              .trim()
-              .replace(/\s+/g, " ")
-              .split(" ")
-              .map(s => s[0]?.toUpperCase() + s.slice(1).toLowerCase())
-              .join(" ");
-            e.target.value = norm;
-          }}
-          className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border-transparent focus:border-[#973bfe] focus:outline-none"
-          placeholder="Ex.: João Silva"
-        />
-        {errors.responsable_name && (
-          <p className="text-[#ef4444] text-sm mt-1">
-            {errors.responsable_name.message}
-          </p>
-        )}
-      </div>
+    <div>
+  <label className="block mb-1 text-sm font-medium">Responsável pela empresa</label>
+  <input
+    {...register("responsable_name", {
+      required: "Campo obrigatório",
+      validate: (v) => hasTwoNames(v) || "Digite nome e sobrenome completos",
+      setValueAs: (v) =>
+        String(v ?? "")
+          .trim()
+          .replace(/\s+/g, " ")
+          .split(" ")
+          .map(s => s ? s[0].toUpperCase() + s.slice(1).toLowerCase() : "")
+          .join(" "),
+    })}
+    defaultValue="" // redundante se você já colocou defaultValues no useForm, mas não atrapalha
+    className="w-full p-2 rounded-md bg-[#2c2c2e] text-white placeholder:text-[#bfbfbf] border-transparent focus:border-[#973bfe] focus:outline-none"
+    placeholder="Ex.: João Silva"
+    autoComplete="name"
+  />
+  {errors.responsable_name && (
+    <p className="text-[#ef4444] text-sm mt-1">{errors.responsable_name.message}</p>
+  )}
+</div>
+
 
       {/* CPF */}
       <div>
@@ -303,7 +301,7 @@ export default function Step2ResponsavelAcesso({ onNext, onBack }) {
         <button
           type="button"
           onClick={handleNext}
-          className="px-4 py-2 bg-[#973bfe] text-white rounded hover:bg-purple-900 transition font-semibold disabled:opacity-60"
+          className="px-4 py-2 bg-[#fb4667] text-white rounded hover:bg-[#fe214a] transition font-semibold disabled:opacity-60"
           disabled={checkingEmail}
         >
           {checkingEmail ? "Verificando..." : "Continuar"}
