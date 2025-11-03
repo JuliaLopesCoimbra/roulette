@@ -149,7 +149,7 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
               type="radio"
               value="Feminino"
               {...register("gender", { required: "Selecione seu sexo" })}
-              className="accent-purple-700"
+              className="accent-[#fb4667]"
             />
             Feminino
           </label>

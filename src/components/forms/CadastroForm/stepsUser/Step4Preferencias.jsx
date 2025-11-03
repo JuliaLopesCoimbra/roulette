@@ -134,7 +134,7 @@ export default function Step4Preferencias({
             <label key={opt.value} className="flex items-center space-x-2 text-sm">
               <input
                 type="checkbox"
-                className="accent-purple-700"
+                className="accent-[#fb4667]"
                 checked={redesSelecionadas.includes(opt.value)}
                 onChange={() => toggleRedeId(opt.value)}
               />
