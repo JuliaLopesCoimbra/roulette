@@ -7,7 +7,6 @@ import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { useGLTF, useAnimations, OrthographicCamera, OrbitControls, Preload } from "@react-three/drei";
 import { motion } from "framer-motion";
 
-// import DollarRain from "../../../../components/rainMoney/DollarRain"; // removido
 import prizes from "../../../../components/prizes/prizes";
 import { addBrindeHoje, canSpinByDailyLimit } from "../../../../utils/brindesStorage";
 
@@ -15,6 +14,8 @@ import { addBrindeHoje, canSpinByDailyLimit } from "../../../../utils/brindesSto
 const MODEL_URL = "/roleta-animacoes.glb";
 const SPIN_SECONDS = 4.8;
 const EXTRA_LOOPS = 4;
+/* Ajuste fino de alinhamento caso o “zero” do GLB não esteja exatamente no topo.
+   Para 10 fatias, cada fatia = 36°. Teste valores múltiplos (ex.: 0, 36, -36, 72...). */
 const ROT_OFFSET_DEG = 0;
 
 /* =================== UTILS 3D =================== */
@@ -46,6 +47,7 @@ function CenterAndFit({ groupRef }) {
     const box = computeMeshesBox(groupRef.current);
     const center = box.getCenter(new THREE.Vector3());
     const sizeBox = box.getSize(new THREE.Vector3());
+
     groupRef.current.position.sub(center);
 
     const margin = 1.1;
@@ -144,7 +146,7 @@ function WheelModel({
         if (o.material) o.material.side = THREE.DoubleSide;
       }
     });
-    if (gl && gl.info && gl.info.reset) gl.info.reset();
+    gl?.info?.reset?.();
     scene.updateMatrixWorld(true);
   }, [scene, gl]);
 
@@ -169,14 +171,21 @@ function WheelModel({
     invalidate();
   }, [animations, actions, mixer, invalidate]);
 
+  // ====== CÁLCULO DO ALVO AJUSTADO + FRAME CENTRAL DA FATIA ======
   useEffect(() => {
     if (!playTrigger || processedTriggerRef.current === playTrigger) return;
     processedTriggerRef.current = playTrigger;
 
     const clip = clipRef.current; if (!clip) return;
 
-    const idxAdj = ((targetMark + Math.round((rotationOffsetDeg / 360) * marksCount)) % marksCount + marksCount) % marksCount;
-    const targetFrame = Math.round((idxAdj / marksCount) * totalFramesRef.current);
+    // offset em “fatias”
+    const offsetMarks = (rotationOffsetDeg / 360) * marksCount;
+    const idxAdjFloat = targetMark + offsetMarks;
+    const idxAdj = ((idxAdjFloat % marksCount) + marksCount) % marksCount;
+
+    const framesPerMark = totalFramesRef.current / marksCount;
+    // usa o CENTRO da fatia para parar exatamente no meio do ponteiro (12h)
+    const targetFrame = Math.round((idxAdj + 0.5) * framesPerMark) % totalFramesRef.current;
     const targetTimeInClip = targetFrame / fpsRef.current;
 
     const totalCyclesTime = extraLoops * clip.duration;
@@ -193,8 +202,9 @@ function WheelModel({
     a.play();
     mixer.update(0);
     invalidate();
-  }, [playTrigger, targetMark, marksCount, extraLoops, rotationOffsetDeg, clock, mixer, invalidate]);
+  }, [playTrigger, targetMark, marksCount, rotationOffsetDeg, extraLoops, clock, mixer, invalidate]);
 
+  // ====== ANIMAÇÃO COM SNAP FINAL EXATO ======
   useFrame(() => {
     if (!spinningRef.current || !actionRef.current || !clipRef.current) return;
     const now = clock.getElapsedTime();
@@ -211,10 +221,12 @@ function WheelModel({
 
     if (t >= 1) {
       spinningRef.current = false;
-      actionRef.current.time = targetTimeInClipRef.current % clipDur;
+      const snapTime = targetTimeInClipRef.current % clipDur;
+      actionRef.current.time = snapTime;
       actionRef.current.paused = true;
       mixer.update(0);
-      if (onFinish) onFinish();
+      invalidate();
+      onFinish?.();
     }
   });
 
@@ -283,19 +295,9 @@ export default function Roulette3D() {
     transition: { duration: 0.6, delay },
   });
 
-  function toGoingSiteAd() {
-    window.open(
-      "https://www.lojabauducco.com.br/?utm_source=google&utm_medium=cpc&utm_campaign=bauducco_pmax_aquisicao_sp_conversao_compras",
-      "_blank"
-    );
-  }
   const comeBack = () => router.push("/pages/user/dashboard");
 
   const handleSpin = () => {
-    // if (!canSpinByDailyLimit()) { setLimitReached(true); setShowCooldownMessage(true); return; }
-    // const cooldownRaw = localStorage.getItem("roletaCooldown");
-    // if (cooldownRaw && Number(cooldownRaw) > Date.now()) { setShowCooldownMessage(true); return; }
-
     setIsSpinning(true);
     setLoading(true);
 
@@ -352,9 +354,8 @@ export default function Roulette3D() {
     >
       <motion.div {...fadeIn(0)}>
 
-        {/* Container da roleta com ponteiro fixo por cima */}
+        {/* Ponteiro fixo no topo (12h) */}
         <div className="relative flex flex-col items-center w-[55vh]">
-          {/* Ponteiro (SVG) centralizado no topo */}
           <img
             src="/img/roulette/ponteiro.svg"
             alt="Ponteiro"
@@ -399,23 +400,29 @@ export default function Roulette3D() {
                 !(prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
             }
             className={`
-              px-8 py-3 rounded-full font-semibold text-white
-              bg-violet-600 hover:bg-violet-700
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-transform duration-200
-              ${isSpinning || loading ? "" : "hover:scale-[1.02]"}
+              relative px-7 py-3 rounded-full select-none font-semibold tracking-wide
+              text-white transition-all duration-300
+              disabled:opacity-40 disabled:cursor-not-allowed
+              ${isSpinning || loading ? "" : "hover:scale-[1.06]"}
+              bg-gradient-to-r from-[#ff6f88] to-[#fb4667]
+              shadow-[0_0_25px_rgba(251,70,103,0.6)]
+              border border-[#fb4667]/20
+              backdrop-blur-xl
             `}
           >
-            {isSpinning
-              ? "Girando..."
-              : loading
-              ? "Buscando..."
-              : hasSpun &&
-                prizeWon &&
-                ((prizeWon.name || "").toLowerCase().includes("tente de novo") ||
-                 (prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
-              ? "Tente de novo"
-              : "Gire"}
+            <span className="drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
+              {isSpinning
+                ? "Girando..."
+                : loading
+                ? "Buscando..."
+                : hasSpun &&
+                  prizeWon &&
+                  ((prizeWon.name || "").toLowerCase().includes("tente de novo") ||
+                   (prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
+                ? "Tente de novo"
+                : "Gire"}
+            </span>
+            <span className="absolute inset-0 rounded-full blur-xl opacity-60 bg-[#fb4667] animate-pulse pointer-events-none"></span>
           </button>
         </div>
 
@@ -431,88 +438,71 @@ export default function Roulette3D() {
           </div>
         )}
 
-        {showModal && prizeWon && (
-          <div
-            className="fixed inset-0 z-50 bg-opacity-60 flex items-center justify-center"
-            onClick={() => {
-              if (!adShownForThisPrize) {
-                setAdShownForThisPrize(true);
-                setTimeout(() => setShowAdModal(true), 300);
-              }
-            }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.9 }}
-              className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl p-6 w-[90vw] max-w-md text-center animate-pop relative"
-              style={{
-                boxShadow: `inset 0 0 14px rgba(43,43,43,2), 0 9px 100px rgba(22,22,22,2)`,
-                background: `
-                  radial-gradient(1000px 600px at 15% 15%, rgba(124,58,237,0.25), transparent 60%),
-                  radial-gradient(900px 500px at 85% 25%, rgba(34,211,238,0.18), transparent 60%),
-                  radial-gradient(800px 500px at 50% 85%, rgba(168,85,247,0.18), transparent 60%),
-                  radial-gradient(circle at center, rgba(10,15,35,0.95) 0%, rgba(15,23,42,1) 100%)
-                `,
-              }}
-            >
-              {(prizeWon.name || "").toLowerCase().includes("não foi dessa vez") ? (
-                <>
-                  <h2 className="text-2xl font-bold mb-4 text-red-500 drop-shadow-md">Infelizmente não foi dessa vez</h2>
-                  <p className="text-md mb-6 text-gray-300">Mas não desanime, você pode tentar mais tarde!</p>
-                </>
-              ) : (
-                <>
-                  <h2 className="text-3xl font-bold mb-4 text-[#fff2f5] drop-shadow-glow">Parabéns!</h2>
-                  <img src={prizeWon.image} alt={prizeWon.name} className="w-32 h-32 object-contain mx-auto mb-4 rounded-xl shadow-lg" />
-                  <p className="text-lg mb-6 text-white">
-                    Você ganhou um cupom de <strong className="text-yellow-500">{prizeWon.name}</strong> para usar nas suas compras
-                  </p>
-                  <div className="flex flex-col items-center gap-2 mb-6">
-                    <p className="text-sm text-gray-100">Use o código no carrinho para aplicar o desconto!</p>
-                    <button className="px-4 py-2 border border-yellow-400 text-yellow-400 rounded hover:bg-yellow-600 hover:text-white transition">NFS125</button>
-                  </div>
-                </>
-              )}
+      {showAdModal && (
+  <div className="fixed inset-0 z-50">
+    {/* Backdrop com gradientes do tema */}
+    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+    <div
+      aria-hidden
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background: `
+          radial-gradient(1200px 900px at 15% 15%, rgba(251,70,103,0.16), transparent 60%),
+          radial-gradient(1000px 700px at 85% 25%, rgba(251,70,103,0.12), transparent 60%)
+        `,
+      }}
+    />
 
-              <button
-                onClick={() => setShowModal(false)}
-                className="mt-2 px-6 py-2 bg-[#fb4667] hover:bg-[#fb4667] text-white font-medium rounded-full shadow-md transition-all"
-              >
-                Fechar
-              </button>
-            </motion.div>
-          </div>
-        )}
+    <div className="relative w-screen h-screen overflow-hidden flex items-center justify-center">
+      <img
+        src="/img/bauducco.jpg"
+        alt="Anúncio"
+        className="w-full h-full object-cover opacity-90"
+      />
 
-        {showAdModal && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center">
-            <div className="relative w-screen h-screen overflow-hidden">
-              <img src="/img/bauducco.jpg" alt="Anúncio" className="w-full h-full object-cover" />
-              <button
-                onClick={(e) => { e.stopPropagation(); if (adClosable) setShowAdModal(false); }}
-                className="absolute top-4 right-4 text-white text-[3vh] z-10 rounded-full px-3 py-1"
-              >
-                {adClosable ? "×" : adCountdown}
-              </button>
-              {showOfferButton && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10"
-                >
-                  <button
-                    onClick={() => window.open("https://www.lojabauducco.com.br/?utm_source=google&utm_medium=cpc&utm_campaign=bauducco_pmax_aquisicao_sp_conversao_compras", "_blank")}
-                    className="px-6 py-3 bg-yellow-500 text-black font-semibold rounded-full hover:bg-yellow-600 shadow-md transition"
-                  >
-                    Acessar Oferta
-                  </button>
-                </motion.div>
-              )}
-            </div>
-          </div>
-        )}
+      {/* Chip do countdown / fechar */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          if (adClosable) setShowAdModal(false);
+        }}
+        className={`
+          absolute top-5 right-5 rounded-full px-4 py-1.5 text-sm
+          border border-white/15 backdrop-blur-md
+          ${adClosable
+            ? "bg-white/15 text-white hover:bg-white/20"
+            : "bg-black/40 text-white/80 cursor-default"}
+        `}
+      >
+        {adClosable ? "Fechar" : `${adCountdown}s`}
+      </button>
+
+      {/* CTA minimalista */}
+      {showOfferButton && (
+        <motion.button
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          onClick={() =>
+            window.open(
+              "https://www.lojabauducco.com.br/?utm_source=google&utm_medium=cpc&utm_campaign=bauducco_pmax_aquisicao_sp_conversao_compras",
+              "_blank"
+            )
+          }
+          className="absolute bottom-8 left-1/2 -translate-x-1/2
+                     px-6 py-3 rounded-full font-medium
+                     bg-gradient-to-r from-[#ff6f88] to-[#fb4667]
+                     text-white shadow-[0_0_22px_rgba(251,70,103,0.5)]
+                     hover:opacity-95 transition"
+        >
+          Acessar oferta
+        </motion.button>
+      )}
+    </div>
+  </div>
+)}
+
+
       </motion.div>
     </div>
   );
