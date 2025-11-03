@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ResponsiveLine } from "@nivo/line";
-import type { PointTooltipProps } from "@nivo/line";
+import type { PointTooltipProps } from "@nivo/line"; // <-- tipagem oficial do tooltip
 import { NIVO_DARK_THEME } from "./theme";
 
 // Mock de dados por mês
@@ -35,17 +35,16 @@ export default function ClicksViewsMonthly() {
   const formattedData = [
     {
       id: "Visualizações",
-      color: "#22d3ee", // ciano
+      color: "#22d3ee",
       data: mockData[month].map((item) => ({ x: item.x, y: item.views })),
     },
     {
       id: "Cliques",
-      color: "#a855f7", // roxo
+      color: "#a855f7",
       data: mockData[month].map((item) => ({ x: item.x, y: item.clicks })),
     },
   ];
 
-  // (Opcional) Deixa o TS feliz com a tipagem do tooltip
   const tooltip = ({ point }: PointTooltipProps<any>) => (
     <div
       style={{
@@ -57,9 +56,10 @@ export default function ClicksViewsMonthly() {
         fontSize: "14px",
       }}
     >
-      <strong>{point.seriesId}</strong> <br />
-      Dia: {point.data.xFormatted} <br />
-      Valor: {point.data.yFormatted}
+      {/* 👇 Aqui está a correção definitiva */}
+      <strong>{String(point.seriesId)}</strong> <br />
+      Dia: {String(point.data.xFormatted)} <br />
+      Valor: {String(point.data.yFormatted)}
     </div>
   );
 
@@ -69,9 +69,9 @@ export default function ClicksViewsMonthly() {
       <div className="flex justify-end mb-4">
         <select
           className="bg-[#0b0b0d] text-white px-3 py-2 rounded-lg border border-white/20 focus:outline-none"
-          style={{ WebkitAppearance: "none", appearance: "none" }}
           value={month}
           onChange={(e) => setMonth(e.target.value as keyof typeof mockData)}
+          style={{ WebkitAppearance: "none", appearance: "none" }}
         >
           {Object.keys(mockData).map((m) => (
             <option key={m} value={m}>
@@ -81,7 +81,6 @@ export default function ClicksViewsMonthly() {
         </select>
       </div>
 
-      {/* Gráfico */}
       <div className="h-[250px]">
         <ResponsiveLine
           data={formattedData}
@@ -91,9 +90,9 @@ export default function ClicksViewsMonthly() {
           yScale={{ type: "linear", min: "auto", max: "auto" }}
           axisBottom={{ tickPadding: 8 }}
           axisLeft={{ tickPadding: 8 }}
-          enablePoints={true}
+          enablePoints
           pointSize={10}
-          useMesh={true}
+          useMesh
           colors={(d) => (d.id === "Cliques" ? "#a855f7" : "#22d3ee")}
           tooltip={tooltip}
           legends={[
