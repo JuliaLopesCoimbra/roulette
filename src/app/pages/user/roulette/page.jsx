@@ -602,29 +602,60 @@ const openAdOnce = () => {
   </div>
 )}
 
-    {/* Modal de anúncio */}
+ {/* Modal de anúncio */}
 {showAdModal && (
-  // 4) Eleve o z-index pra ficar acima da modal de prêmio
-  <div className="fixed inset-0 z-60 bg-black bg-opacity-90 flex items-center justify-center">
-    <div className="relative w-screen h-screen overflow-hidden">
-      <img src="/img/bauducco.jpg" alt="Anúncio" className="w-full h-full object-cover" />
+  <div
+    className="
+      fixed inset-0 z-[100]
+      flex items-center justify-center
+      bg-black/90
+      overflow-hidden
+    "
+    // Evita clicar/scrollar por baixo
+    style={{ touchAction: "none" }}
+  >
+    {/* Fundo em cover que SEMPRE preenche a tela */}
+    <div className="relative w-full h-[100dvh]">
+      <div
+        className="absolute inset-0 bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/img/bauducco.jpg')", backgroundSize: "cover" }}
+        onClick={e => {
+          // Clique no fundo não fecha enquanto estiver bloqueado
+          if (adClosable) setShowAdModal(false);
+        }}
+      />
 
+      {/* Botão fechar FIXO na viewport e com safe-area */}
       <button
         onClick={(e) => {
           e.stopPropagation();
           if (adClosable) setShowAdModal(false);
         }}
-        className="absolute top-4 right-4 text-white text-[3vh] z-10 rounded-full px-3 py-1"
+        className="
+          fixed
+          z-[110]
+          text-white
+          rounded-full px-3 py-1
+          text-[3vh] leading-none
+        "
+        style={{
+          top: "calc(env(safe-area-inset-top, 0px) + 12px)",
+          right: "calc(env(safe-area-inset-right, 0px) + 12px)",
+        }}
       >
         {adClosable ? "×" : adCountdown}
       </button>
 
+      {/* CTA centralizado, respeitando a safe-area inferior */}
       {showOfferButton && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10"
+          className="fixed left-1/2 -translate-x-1/2 z-[110]"
+          style={{
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
+          }}
         >
           <button
             onClick={() =>
@@ -642,6 +673,7 @@ const openAdOnce = () => {
     </div>
   </div>
 )}
+
 
       </motion.div>
     </div>
