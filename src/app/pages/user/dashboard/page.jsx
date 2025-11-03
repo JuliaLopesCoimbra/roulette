@@ -71,7 +71,7 @@ useEffect(() => {
     if (!ultimoValido) return null;
     const dataUltimo = dayjs(ultimoValido.data);
     const diff = dayjs().diff(dataUltimo, "minute");
-    const minutosRestantes = 180 - diff; // 3h
+    const minutosRestantes = 0.1 - diff; // 3h
     return minutosRestantes > 0 ? minutosRestantes : null;
   }, [brindesHoje]);
 
@@ -169,16 +169,58 @@ useEffect(() => {
           <button
             onClick={() => canSpin ? router.push("/pages/user/video") : null}
             disabled={!canSpin}
-            className={`group relative w-full overflow-hidden rounded-2xl border px-5 py-4 text-left transition backdrop-blur-sm
-              ${canSpin ? "cursor-pointer border-white/15 bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30" : "cursor-not-allowed border-white/10 bg-white/5 opacity-70"}`}
+            className={`group relative w-full overflow-hidden rounded-2xl text-left transition backdrop-blur-sm
+              ${canSpin ? "cursor-pointer  focus:outline-none focus:ring-2 focus:ring-white/30" : "cursor-not-allowed border-white/10 bg-white/5 opacity-70"}`}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-base font-semibold">{canSpin ? "Girar a Roleta" : tentativasRestantes === 0 ? "Limite de giros atingido" : `Aguarde ${proximoHorarioMin} min`}</p>
-                <p className="mt-0.5 text-sm text-white/70">Ganhe prêmios e acompanhe seu histórico</p>
-              </div>
-              <ChevronRight className="h-5 w-5 opacity-80 transition group-hover:translate-x-0.5" />
-            </div>
+         <div
+  className={`
+    flex items-center justify-between p-4 rounded-xl transition-all duration-300 relative overflow-hidden
+    ${canSpin ? "cursor-pointer" : "opacity-70 cursor-not-allowed"}
+  `}
+  style={{
+    background: canSpin
+      ? "linear-gradient(90deg, rgba(251,70,103,0.35), rgba(255,0,128,0.35))"
+      : "rgba(255,255,255,0.08)",
+    backdropFilter: "blur(8px)",
+    border: canSpin
+      ? "1px solid rgba(251,70,103,0.8)"
+      : "1px solid rgba(255,255,255,0.15)",
+    boxShadow: canSpin
+      ? "0 0 18px 4px rgba(251,70,103,0.55)"
+      : "none",
+  }}
+>
+  {/* Círculo de glow animado atrás */}
+  {canSpin && (
+    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#fb4667] to-[#ff0099] opacity-30 blur-3xl animate-pulse"></div>
+  )}
+
+  <div>
+    <p
+      className={`text-base font-extrabold tracking-wide transition
+        ${canSpin ? "text-white" : "text-white/70"}
+      `}
+    >
+      {canSpin
+        ? "Girar a Roleta"
+        : tentativasRestantes === 0
+          ? "Limite de giros atingido"
+          : `Aguarde ${proximoHorarioMin} min`}
+    </p>
+
+    <p className="mt-0.5 text-sm text-white/70">
+      Ganhe prêmios e acompanhe seu histórico
+    </p>
+  </div>
+
+  <ChevronRight
+    className={`h-6 w-6 transition-all duration-300
+      ${canSpin ? "text-white group-hover:translate-x-1" : "opacity-40"}
+    `}
+  />
+</div>
+
+
           </button>
         </motion.section>
 

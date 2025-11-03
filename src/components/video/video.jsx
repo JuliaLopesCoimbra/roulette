@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 export default function VideoCenterPage({ videoSrc }) {
   const videoRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [hasEnded, setHasEnded] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -14,41 +15,49 @@ export default function VideoCenterPage({ videoSrc }) {
     // força autoplay
     v.muted = true;
     v.playsInline = true;
-    const tryPlay = () => v.play().catch(() => {});
+
+    const tryPlay = () => {
+      if (!hasEnded && v.paused) {
+        v.play().catch(() => {});
+      }
+    };
     tryPlay();
 
-    const onEnded = () => router.push("/pages/user/roulette");
+    const onEnded = () => {
+      setHasEnded(true);
+      // evita qualquer re-play acidental
+      v.pause();
+      // garante que o tempo pare no final (alguns browsers "loopam" para 0 por um frame)
+      v.currentTime = v.duration || v.currentTime;
+      router.push("/pages/user/roulette");
+    };
+
     const onTimeUpdate = () => {
       if (v.duration) setProgress((v.currentTime / v.duration) * 100);
     };
-    const onPause = () => setTimeout(() => v.play().catch(() => {}), 0);
+
+    // Se o usuário voltar para a aba, tenta tocar apenas se não terminou
     const onVisibility = () => {
       if (document.visibilityState === "visible") tryPlay();
     };
 
     v.addEventListener("ended", onEnded);
     v.addEventListener("timeupdate", onTimeUpdate);
-    v.addEventListener("pause", onPause);
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       v.removeEventListener("ended", onEnded);
       v.removeEventListener("timeupdate", onTimeUpdate);
-      v.removeEventListener("pause", onPause);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [router]);
+  }, [router, hasEnded]);
 
   return (
     <div
       className="fixed inset-0 z-50 bg-black overflow-hidden"
-      style={{
-        touchAction: "none",
-        WebkitUserSelect: "none",
-        userSelect: "none",
-      }}
+      style={{ touchAction: "none", WebkitUserSelect: "none", userSelect: "none" }}
     >
-      {/* 🔝 Barra de Progresso */}
+      {/* Barra de progresso */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gray-700 z-20">
         <div
           className="h-full bg-[#fb4667] transition-all duration-100"
@@ -56,8 +65,9 @@ export default function VideoCenterPage({ videoSrc }) {
         />
       </div>
 
-      {/* 🎥 Vídeo fixo, sem qualquer UI */}
+      {/* Vídeo sem UI */}
       <video
+        key={videoSrc} // garante estado limpo se trocar o arquivo
         ref={videoRef}
         src={videoSrc}
         autoPlay
@@ -70,11 +80,7 @@ export default function VideoCenterPage({ videoSrc }) {
         tabIndex={-1}
         onContextMenu={(e) => e.preventDefault()}
         className="absolute top-0 left-0 w-full h-full object-cover pointer-events-none select-none"
-        style={{
-          WebkitUserSelect: "none",
-          userSelect: "none",
-          WebkitTouchCallout: "none",
-        }}
+        style={{ WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" }}
       />
     </div>
   );

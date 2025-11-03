@@ -503,11 +503,11 @@ const openAdOnce = () => {
 
        {/* Modal de prêmio */}
 {showModal && prizeWon && (
-  <div
-    className="fixed inset-0 z-50 flex items-center justify-center"
-    // 2) Qualquer clique no overlay já abre o anúncio
-    onClick={openAdOnce}
-  >
+ <div
+  className="fixed inset-0 z-50 flex items-center justify-center min-h-screen overflow-y-auto"
+  onClick={openAdOnce}
+>
+
     {/* Fundo claro rosado */}
     <div
       className="absolute inset-0 backdrop-blur-md"
@@ -550,7 +550,7 @@ const openAdOnce = () => {
         </>
       ) : (
         <>
-          <h2 className="text-2xl font-bold text-[#fb4667]">🎉 Parabéns! 🎉</h2>
+          <h2 className="text-2xl font-bold text-[#fb4667]">Parabéns!</h2>
 
           <img
             src={prizeWon.image}
@@ -559,7 +559,7 @@ const openAdOnce = () => {
           />
 
           <p className="text-gray-700">
-            Você ganhou: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
+            Você ganhou um voucher da: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
           </p>
 
           {/* Cupom */}
@@ -593,7 +593,6 @@ const openAdOnce = () => {
     </motion.div>
   </div>
 )}
-
 
     {/* Modal de anúncio */}
 {showAdModal && (
