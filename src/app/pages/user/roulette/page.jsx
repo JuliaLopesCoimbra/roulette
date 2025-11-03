@@ -563,7 +563,7 @@ const openAdOnce = () => {
             Você ganhou um voucher da: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
           </p>
           <img
-            src={prizeWon.image}
+            src={"/img/rockinrio.png"}
             alt={prizeWon.name}
             className="w-28 h-28 object-contain mx-auto my-4 drop-shadow-md"
           />
