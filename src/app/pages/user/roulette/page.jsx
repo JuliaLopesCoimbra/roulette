@@ -144,6 +144,7 @@ function WheelModel({
   const targetTimeInClipRef = useRef(0);
   const actionRef = useRef(null);
   const processedTriggerRef = useRef(0);
+  const holdTimeRef = useRef(null); // ✅ tempo "congelado" após pouso
 
   useLayoutEffect(() => {
     scene.traverse((o) => {
@@ -171,7 +172,7 @@ function WheelModel({
     a.setLoop(THREE.LoopOnce);
     a.clampWhenFinished = true;
     a.paused = true;
-    a.time = 0;
+    a.time = holdTimeRef.current ?? 0;
     mixer.update(0);
     actionRef.current = a;
     invalidate();
@@ -196,7 +197,7 @@ function WheelModel({
 
     const framesPerMark = totalFramesRef.current / marksCount;
     // +0.5 centraliza no meio do setor
-    const targetFrame = Math.round((idxAdj + 0.5) * framesPerMark) % totalFramesRef.current;
+    const targetFrame = Math.round((idxAdj ) * framesPerMark) % totalFramesRef.current;
     const targetTimeInClip = targetFrame / fpsRef.current;
 
     const totalCyclesTime = (extraLoops || 0) * clip.duration;
@@ -207,6 +208,7 @@ function WheelModel({
     finalTimeRef.current = finalTime;
     startTimeRef.current = clock.getElapsedTime();
     spinningRef.current = true;
+    holdTimeRef.current = null;
 
     const a = actionRef.current;
     a.paused = true;
@@ -234,13 +236,29 @@ function WheelModel({
 
     if (t >= 1) {
       spinningRef.current = false;
-      actionRef.current.time = targetTimeInClipRef.current % clipDur;
+
+      // ✅ congele exatamente no tempo do prêmio
+      const hold = targetTimeInClipRef.current % clipDur;
+      holdTimeRef.current = hold;
+      actionRef.current.time = hold;
       actionRef.current.paused = true;
       mixer.update(0);
-      onFinish?.(); // ✅ terminou
+      invalidate();
+
+      onFinish?.();
     }
   });
 
+  // (D) se houver qualquer re-render depois do pouso, reafirme o frame congelado
+  useEffect(() => {
+    if (!spinningRef.current && actionRef.current && holdTimeRef.current != null) {
+      actionRef.current.time = holdTimeRef.current;
+      actionRef.current.paused = true;
+      mixer.update(0);
+      invalidate();
+    }
+  });
+  
   return (
     <>
       <group ref={groupRef}>
@@ -363,6 +381,13 @@ export default function Roulette3D() {
     setTimeout(() => setShowModal(true), 300);
     setTimeout(() => setShowCooldownMessage(true), 1200);
   };
+const openAdOnce = () => {
+  if (!adShownForThisPrize) {
+    setAdShownForThisPrize(true);
+    // abre já; se quiser delay, reintroduza o setTimeout
+    setShowAdModal(true);
+  }
+};
 
   return (
     <div
@@ -414,44 +439,54 @@ export default function Roulette3D() {
 
         {/* Botão abaixo da roleta */}
         <div className="w-full flex justify-center mt-6">
-          <button
-            onClick={handleSpin}
-            disabled={
-              !modelReady ||
-              isSpinning ||
-              loading ||
-              (hasSpun &&
-                prizeWon &&
-                !(prizeWon.name || "").toLowerCase().includes("tente de novo") &&
-                !(prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
-            }
-            className={`relative px-7 py-3 rounded-full select-none font-semibold tracking-wide
-              text-white transition-all duration-300
-              disabled:opacity-40 disabled:cursor-not-allowed
-              ${isSpinning || loading ? "" : "hover:scale-[1.06]"}
-              bg-gradient-to-r from-[#ff6f88] to-[#fb4667]
-              shadow-[0_0_25px_rgba(251,70,103,0.6)]
-              border border-[#fb4667]/20
-              backdrop-blur-xl
-              ${!modelReady ? "opacity-40 cursor-not-allowed" : ""}
-            `}
-          >
-            <span className="drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
-              {isSpinning
-                ? "Girando..."
-                : loading
-                ? "Buscando..."
-                : hasSpun &&
-                  prizeWon &&
-                  ((prizeWon.name || "").toLowerCase().includes("tente de novo") ||
-                    (prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
-                ? "Tente de novo"
-                : "Gire"}
-            </span>
+        <button
+  onClick={handleSpin}
+  disabled={
+    !modelReady ||
+    isSpinning ||
+    loading ||
+    (hasSpun &&
+      prizeWon &&
+      !(prizeWon.name || "").toLowerCase().includes("tente de novo") &&
+      !(prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
+  }
+  className={`
+    relative group px-8 py-3 rounded-full select-none tracking-wide font-semibold
+    bg-gradient-to-r from-[#fb4667] to-[#c42441]
+    text-[#ffeaf0] transition-all duration-300
+    border border-[#ffffff20]
+    shadow-[0_0_15px_rgba(251,70,103,0.55)] 
+    backdrop-blur-xl
 
-            {/* Efeito glow animado */}
-            <span className="absolute inset-0 rounded-full blur-xl opacity-60 bg-[#fb4667] animate-pulse pointer-events-none"></span>
-          </button>
+    ${isSpinning || loading ? "" : "hover:scale-[1.08] hover:rotate-[0.8deg]"}
+
+    disabled:opacity-30 disabled:cursor-not-allowed disabled:saturate-0
+  `}
+>
+  {/* texto */}
+  <span className="relative z-20 drop-shadow-[0_0_4px_rgba(0,0,0,0.45)]">
+    {isSpinning
+      ? "Girando..."
+      : loading
+      ? "Buscando..."
+      : hasSpun &&
+        prizeWon &&
+        ((prizeWon.name || "").toLowerCase().includes("tente de novo") ||
+          (prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
+      ? "Tente de novo"
+      : "Gire"}
+  </span>
+
+  {/* glow principal */}
+  <span className="absolute inset-0 rounded-full opacity-70 bg-gradient-to-r from-[#fb4667] to-[#ff6f88]
+      blur-xl transition-transform duration-300 
+      group-hover:scale-[1.35] group-hover:opacity-90 pointer-events-none">
+  </span>
+
+  {/* borda interna brilhante */}
+  <span className="absolute inset-0 rounded-full border border-white/20 pointer-events-none"></span>
+</button>
+
         </div>
 
         {hasSpun && showCooldownMessage && (
@@ -466,130 +501,141 @@ export default function Roulette3D() {
           </div>
         )}
 
-        {/* Modal de prêmio */}
-        {showModal && prizeWon && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center"
+       {/* Modal de prêmio */}
+{showModal && prizeWon && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center"
+    // 2) Qualquer clique no overlay já abre o anúncio
+    onClick={openAdOnce}
+  >
+    {/* Fundo claro rosado */}
+    <div
+      className="absolute inset-0 backdrop-blur-md"
+      style={{
+        background: `
+          radial-gradient(900px 600px at 50% 10%, rgba(255,182,193,0.38), transparent 70%),
+          radial-gradient(1200px 900px at 50% 90%, rgba(251,70,103,0.18), transparent 70%),
+          rgba(255,255,255,0.45)
+        `,
+      }}
+    />
+
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      // 3) Remova o stopPropagation e também chame openAdOnce aqui:
+      onClick={openAdOnce}
+      className="relative mx-auto w-[92vw] max-w-md rounded-2xl p-6 text-center border border-white/30 shadow-lg"
+      style={{
+        backdropFilter: "blur(14px)",
+        background: "linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,245,247,0.65))",
+      }}
+    >
+      {(prizeWon.name || "").toLowerCase().includes("não foi dessa vez") ? (
+        <>
+          <h2 className="text-xl font-semibold text-[#fb4667]">Não foi dessa vez 😢</h2>
+          <p className="mt-2 text-sm text-gray-700">Tente novamente mais tarde!</p>
+
+          <button
+            // Obs.: "qualquer lugar" abre o anúncio — inclusive botões.
             onClick={() => {
-              if (!adShownForThisPrize) {
-                setAdShownForThisPrize(true);
-                setTimeout(() => setShowAdModal(true), 300);
-              }
+              setShowModal(false);
+              openAdOnce();
             }}
+            className="mt-6 px-6 py-2 rounded-full bg-[#fb4667] text-white hover:opacity-90 transition"
           >
-            {/* Fundo claro rosado */}
-            <div
-              className="absolute inset-0 backdrop-blur-md"
-              style={{
-                background: `
-                  radial-gradient(900px 600px at 50% 10%, rgba(255,182,193,0.38), transparent 70%),
-                  radial-gradient(1200px 900px at 50% 90%, rgba(251,70,103,0.18), transparent 70%),
-                  rgba(255,255,255,0.45)
-                `,
-              }}
-            />
+            Fechar
+          </button>
+        </>
+      ) : (
+        <>
+          <h2 className="text-2xl font-bold text-[#fb4667]">🎉 Parabéns! 🎉</h2>
 
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative mx-auto w-[92vw] max-w-md rounded-2xl p-6 text-center border border-white/30 shadow-lg"
-              style={{
-                backdropFilter: "blur(14px)",
-                background:
-                  "linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,245,247,0.65))",
+          <img
+            src={prizeWon.image}
+            alt={prizeWon.name}
+            className="w-28 h-28 object-contain mx-auto my-4 drop-shadow-md"
+          />
+
+          <p className="text-gray-700">
+            Você ganhou: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
+          </p>
+
+          {/* Cupom */}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <code className="px-4 py-2 rounded-lg bg-white text-[#fb4667] border border-[#fb4667]/30 tracking-wider font-semibold">
+              NFS125
+            </code>
+
+            <button
+              onClick={() => {
+                navigator.clipboard?.writeText("NFS125");
+                openAdOnce();
               }}
+              className="px-3 py-2 rounded-lg text-sm bg-[#fb4667]/90 text-white hover:bg-[#fb4667] transition"
             >
-              {(prizeWon.name || "").toLowerCase().includes("não foi dessa vez") ? (
-                <>
-                  <h2 className="text-xl font-semibold text-[#fb4667]">Não foi dessa vez 😢</h2>
-                  <p className="mt-2 text-sm text-gray-700">Tente novamente mais tarde!</p>
-
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="mt-6 px-6 py-2 rounded-full bg-[#fb4667] text-white hover:opacity-90 transition"
-                  >
-                    Fechar
-                  </button>
-                </>
-              ) : (
-                <>
-                  <h2 className="text-2xl font-bold text-[#fb4667]">🎉 Parabéns! 🎉</h2>
-
-                  <img
-                    src={prizeWon.image}
-                    alt={prizeWon.name}
-                    className="w-28 h-28 object-contain mx-auto my-4 drop-shadow-md"
-                  />
-
-                  <p className="text-gray-700">
-                    Você ganhou: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
-                  </p>
-
-                  {/* Cupom */}
-                  <div className="mt-4 flex items-center justify-center gap-2">
-                    <code className="px-4 py-2 rounded-lg bg-white text-[#fb4667] border border-[#fb4667]/30 tracking-wider font-semibold">
-                      NFS125
-                    </code>
-
-                    <button
-                      onClick={() => navigator.clipboard?.writeText("NFS125")}
-                      className="px-3 py-2 rounded-lg text-sm bg-[#fb4667]/90 text-white hover:bg-[#fb4667] transition"
-                    >
-                      Copiar
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="mt-6 px-6 py-2 rounded-full bg-[#fb4667] text-white hover:opacity-90 transition"
-                  >
-                    Fechar
-                  </button>
-                </>
-              )}
-            </motion.div>
+              Copiar
+            </button>
           </div>
-        )}
 
-        {/* Modal de anúncio */}
-        {showAdModal && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center">
-            <div className="relative w-screen h-screen overflow-hidden">
-              <img src="/img/bauducco.jpg" alt="Anúncio" className="w-full h-full object-cover" />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (adClosable) setShowAdModal(false);
-                }}
-                className="absolute top-4 right-4 text-white text-[3vh] z-10 rounded-full px-3 py-1"
-              >
-                {adClosable ? "×" : adCountdown}
-              </button>
-              {showOfferButton && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10"
-                >
-                  <button
-                    onClick={() =>
-                      window.open(
-                        "https://www.lojabauducco.com.br/?utm_source=google&utm_medium=cpc&utm_campaign=bauducco_pmax_aquisicao_sp_conversao_compras",
-                        "_blank"
-                      )
-                    }
-                    className="px-6 py-3 bg-yellow-500 text-black font-semibold rounded-full hover:bg-yellow-600 shadow-md transition"
-                  >
-                    Acessar Oferta
-                  </button>
-                </motion.div>
-              )}
-            </div>
-          </div>
-        )}
+          <button
+            onClick={() => {
+              setShowModal(false);
+              openAdOnce();
+            }}
+            className="mt-6 px-6 py-2 rounded-full bg-[#fb4667] text-white hover:opacity-90 transition"
+          >
+            Fechar
+          </button>
+        </>
+      )}
+    </motion.div>
+  </div>
+)}
+
+
+    {/* Modal de anúncio */}
+{showAdModal && (
+  // 4) Eleve o z-index pra ficar acima da modal de prêmio
+  <div className="fixed inset-0 z-60 bg-black bg-opacity-90 flex items-center justify-center">
+    <div className="relative w-screen h-screen overflow-hidden">
+      <img src="/img/bauducco.jpg" alt="Anúncio" className="w-full h-full object-cover" />
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          if (adClosable) setShowAdModal(false);
+        }}
+        className="absolute top-4 right-4 text-white text-[3vh] z-10 rounded-full px-3 py-1"
+      >
+        {adClosable ? "×" : adCountdown}
+      </button>
+
+      {showOfferButton && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10"
+        >
+          <button
+            onClick={() =>
+              window.open(
+                "https://www.lojabauducco.com.br/?utm_source=google&utm_medium=cpc&utm_campaign=bauducco_pmax_aquisicao_sp_conversao_compras",
+                "_blank"
+              )
+            }
+            className="px-6 py-3 bg-yellow-500 text-black font-semibold rounded-full hover:bg-yellow-600 shadow-md transition"
+          >
+            Acessar Oferta
+          </button>
+        </motion.div>
+      )}
+    </div>
+  </div>
+)}
+
       </motion.div>
     </div>
   );
