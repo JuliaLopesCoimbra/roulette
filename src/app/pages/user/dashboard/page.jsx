@@ -7,7 +7,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { Menu, LogOut, History, Gift, ChevronRight, Clock } from "lucide-react";
-import { getBrindesDeHoje } from "../../../../utils/brindesStorage";
 import { getUserToken, clearUserToken } from "../../../../utils/auth";
 
 dayjs.extend(customParseFormat);
@@ -15,277 +14,446 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const TIMEZONE = "America/Sao_Paulo";
+const STATUS_LABELS = {
+  reserved: "Reservado",
+  redeemed: "Retirado",
+  canceled: "Cancelado",
+};
 
-// util de data
+
 function formatZ(dt) {
-  // aceita string ISO/UTC armazenada
+  if (!dt) return "—";
   return dayjs.utc(dt).tz(TIMEZONE).format("DD/MM/YYYY HH:mm");
 }
 
 export default function Dashboard() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [brindesHoje, setBrindesHoje] = useState([]);
   const [user, setUser] = useState(null);
 
-useEffect(() => {
-  const tok = getUserToken();
-  if (!tok) {
-    router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
-    return;
-  }
+  const [dashboardData, setDashboardData] = useState(null);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [dashboardError, setDashboardError] = useState(null);
 
-  // busca informações do usuário logado
-  import("../../../../utils/api").then(({ api }) => {
-    api.me()
-      .then((data) => setUser({
-        nome: data.name || "Usuário",
-        email: data.email || "",
-        avatarUrl: "/img/avatar.jpg", // opcional: futuramente pode vir da API
-      }))
-      .catch((err) => {
-        console.error("Erro ao buscar perfil:", err);
-        clearUserToken();
-        router.replace("/pages/user/signIn");
-      });
-  });
-}, [router]);
-
-
-  // carrega histórico do dia
-  useEffect(() => { setBrindesHoje(getBrindesDeHoje()); }, []);
-
-  // proteção client-side (redundância ao middleware)
+  // autenticação + perfil + dashboard
   useEffect(() => {
     const tok = getUserToken();
-    if (!tok) router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
+    if (!tok) {
+      router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
+      return;
+    }
+
+    import("../../../../utils/api")
+      .then(({ api }) => {
+        // carrega perfil + homepage em paralelo
+        return Promise.all([
+          api.me(),
+          api.homepageUser(),
+        ]);
+      })
+      .then(([meData, homeData]) => {
+        setUser({
+          nome: meData.name || "Usuário",
+          email: meData.email || "",
+          avatarUrl: "/img/avatar.jpg",
+        });
+        setDashboardData(homeData);
+        setDashboardError(null);
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar dashboard:", err);
+        setDashboardError(err?.message || "Erro ao carregar dados da roleta.");
+        clearUserToken();
+        router.replace("/pages/user/signIn");
+      })
+      .finally(() => {
+        setDashboardLoading(false);
+      });
   }, [router]);
 
-  // tentativas e próxima janela
-  const tentativasRestantes = useMemo(() => Math.max(0, 3 - (brindesHoje?.length || 0)), [brindesHoje]);
+  // derivando valores a partir do /homepageuser
+  const spinStatus = dashboardData?.spin_status || null;
+  const lastPrize = dashboardData?.last_prize || null;
+  const todayPrizes = dashboardData?.today_prizes || [];
+
+  const tentativasRestantes = spinStatus ? spinStatus.remaining_today : 0;
+  const maxTentativas = spinStatus ? spinStatus.max_spins_per_day : 3;
 
   const proximoHorarioMin = useMemo(() => {
-    const ultimoValido = [...brindesHoje]
-      .filter((b) => b.premio !== "Nada")
-      .sort((a, b) => dayjs(b.data).valueOf() - dayjs(a.data).valueOf())[0];
-    if (!ultimoValido) return null;
-    const dataUltimo = dayjs(ultimoValido.data);
-    const diff = dayjs().diff(dataUltimo, "minute");
-    const minutosRestantes = 0.1 - diff; // 3h
-    return minutosRestantes > 0 ? minutosRestantes : null;
-  }, [brindesHoje]);
+    if (!spinStatus) return null;
+    if (spinStatus.status !== "cooldown") return null;
+    if (spinStatus.cooldown_seconds_remaining == null) return null;
+    const mins = Math.ceil(spinStatus.cooldown_seconds_remaining / 60);
+    return mins > 0 ? mins : null;
+  }, [spinStatus]);
 
-  const canSpin = tentativasRestantes > 0 && !proximoHorarioMin;
+  const canSpin = spinStatus ? spinStatus.status === "available" : false;
+  const isDailyLimit = spinStatus ? spinStatus.status === "daily_limit" : false;
 
-  const go = (href) => { setMenuOpen(false); router.push(href); };
+  const go = (href) => {
+    setMenuOpen(false);
+    router.push(href);
+  };
 
   return (
-   <div className="relative min-h-[100svh] md:min-h-[100dvh] text-white overflow-hidden bg-[#0f172a]">
-
-      {/* BG em camadas */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 " style={{
-  background: `
-    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
-    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
-    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
-    #000000
+    <div className="relative min-h-[100svh] md:min-h-[100dvh] text-white overflow-hidden "
+      style={{
+        background: `
+    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
+    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
+    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
   `
-}} />
-        <div className="absolute -left-1/4 -top-1/4 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-50" style={{
-  background: `
-    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
-    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
-    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
-    #000000
-  `
-}} />
-        <div className="absolute -right-1/4 -bottom-1/4 h-[70vh] w-[70vh] rounded-full blur-3xl opacity-40" style={{background:"radial-gradient(closest-side, rgba(99,102,241,0.35), transparent 70%)"}} />
-        <svg className="absolute inset-0 h-full w-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
-              <path d="M36 0H0V36" fill="none" stroke="white" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
+      }}>
 
-  <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
-  <button onClick={() => setMenuOpen(true)} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition">
-    <Menu className="h-5 w-5" />
-  </button>
+      <header className="relative z-10 mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">
+        <div className="flex items-center justify-between">
+          {/* Bloco do usuário */}
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                {/* Avatar maior com borda bonita */}
+                <div className="relative">
+                  {/* Glow / borda em degradê */}
+                  <span className="absolute inset-0 rounded-full bg-[conic-gradient(from_140deg,#ffffff66,#ffb3e6,#7c3aed,#ffb3e6,#ffffff66)] blur-[2px] opacity-80" />
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.nome}
+                    className="relative h-14 w-14 rounded-full object-cover ring-2 ring-white/60 shadow-lg"
+                  />
+                </div>
 
-  <div className="flex items-center gap-3">
-    {user ? (
-      <>
-        <div className="text-right">
-          <p className="text-xs/4 text-white/70">{user.email}</p>
-          <p className="text-sm font-medium">{user.nome}</p>
+                {/* Textos */}
+                <div className="flex flex-col">
+                  <p className="text-xs text-white/80">
+                    Bem vindo de volta,
+                  </p>
+                  <p className="text-lg font-semibold leading-tight">
+                    {user.nome}!
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-white/70">
+                    {user.email}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="h-14 w-14 animate-pulse rounded-full bg-white/10" />
+                <div className="space-y-1">
+                  <div className="h-3 w-32 animate-pulse rounded bg-white/15" />
+                  <div className="h-3 w-24 animate-pulse rounded bg-white/15" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Botão de menu (mantido, mas agora fica à direita) */}
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition shadow-lg backdrop-blur-sm"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
         </div>
-        <img src={user.avatarUrl} alt={user.nome} className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20 shadow" />
-      </>
-    ) : (
-      <div className="animate-pulse text-sm text-white/60">Carregando...</div>
-    )}
-  </div>
-</header>
+      </header>
 
 
       {/* Conteúdo */}
       <main className="relative z-10 mx-auto w-full max-w-3xl px-4 pb-10 sm:px-6">
-        {/* Cards de status */}
-        <motion.section initial={{opacity:0, y:12}} animate={{opacity:1, y:0}} transition={{duration:.35}} className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {/* Tentativas */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm shadow-[0_1px_0_rgba(255,255,255,0.05),0_30px_60px_-15px_rgba(0,0,0,0.45)]">
-            <p className="text-xs text-white/70">Tentativas restantes</p>
-            <p className="mt-1 text-3xl font-bold leading-none">{tentativasRestantes}</p>
-            <p className="mt-1 text-[11px] text-white/60">Máximo de 3 giros por dia</p>
-          </div>
+        <div className="relative w-full mt-2">
 
-          {/* Próximo horário */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-            <p className="flex items-center gap-1 text-xs text-white/70"><Clock className="h-3.5 w-3.5"/>Próximo giro</p>
-            <p className="mt-1 text-2xl font-semibold leading-none">{proximoHorarioMin ? `${proximoHorarioMin} min` : "Disponível"}</p>
-            <p className="mt-1 text-[11px] text-white/60">Intervalo mínimo de 3 horas</p>
-          </div>
-
-          {/* Último prêmio */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-            <p className="flex items-center gap-1 text-xs text-white/70"><Gift className="h-3.5 w-3.5"/>Último prêmio</p>
-            {brindesHoje.length > 0 ? (
-              <>
-                <p className="mt-1 truncate text-lg font-semibold leading-none">{brindesHoje[brindesHoje.length - 1].premio}</p>
-                <p className="mt-1 text-[11px] text-white/60">{formatZ(brindesHoje[brindesHoje.length - 1].data)}</p>
-              </>
-            ) : (
-              <p className="mt-1 text-lg font-semibold leading-none">—</p>
-            )}
-          </div>
-        </motion.section>
-
-        {/* CTA principal */}
-        <motion.section initial={{opacity:0, y:12}} animate={{opacity:1, y:0}} transition={{duration:.4, delay:.05}} className="mt-4">
-          <button
-            onClick={() => canSpin ? router.push("/pages/user/video") : null}
-            disabled={!canSpin}
-            className={`group relative w-full overflow-hidden rounded-2xl text-left transition backdrop-blur-sm
-              ${canSpin ? "cursor-pointer  focus:outline-none focus:ring-2 focus:ring-white/30" : "cursor-not-allowed border-white/10 bg-white/5 opacity-70"}`}
-          >
-         <div
-  className={`
-    flex items-center justify-between p-4 rounded-xl transition-all duration-300 relative overflow-hidden
-    ${canSpin ? "cursor-pointer" : "opacity-70 cursor-not-allowed"}
-  `}
-  style={{
-    background: canSpin
-      ? "linear-gradient(90deg, rgba(251,70,103,0.35), rgba(255,0,128,0.35))"
-      : "rgba(255,255,255,0.08)",
-    backdropFilter: "blur(8px)",
-    border: canSpin
-      ? "1px solid rgba(251,70,103,0.8)"
-      : "1px solid rgba(255,255,255,0.15)",
-    boxShadow: canSpin
-      ? "0 0 18px 4px rgba(251,70,103,0.55)"
-      : "none",
-  }}
->
-  {/* Círculo de glow animado atrás */}
-  {canSpin && (
-    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#fb4667] to-[#ff0099] opacity-30 blur-3xl animate-pulse"></div>
-  )}
-
-  <div>
-    <p
-      className={`text-base font-extrabold tracking-wide transition
-        ${canSpin ? "text-white" : "text-white/70"}
-      `}
-    >
-      {canSpin
-        ? "Girar a Roleta"
-        : tentativasRestantes === 0
-          ? "Limite de giros atingido"
-          : `Aguarde ${proximoHorarioMin} min`}
-    </p>
-
-    <p className="mt-0.5 text-sm text-white/70">
-      Ganhe prêmios e acompanhe seu histórico
-    </p>
+  {/* Ondas atrás (suave, blur, luz difusa) */}
+  <div className="pointer-events-none absolute inset-0 -top-10 opacity-70 blur-xl">
+    <img
+      src="/img/dashboard/waves-lines.svg"
+      alt=""
+      className="w-full h-full object-cover"
+    />
   </div>
 
-  <ChevronRight
-    className={`h-6 w-6 transition-all duration-300
-      ${canSpin ? "text-white group-hover:translate-x-1" : "opacity-40"}
-    `}
-  />
+  <motion.section
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.35 }}
+    className="relative z-10 mt-6 flex flex-col items-center text-center"
+    style={{
+      background: `
+        radial-gradient(circle at top left, rgba(255,0,102,0.35), transparent 65%),
+        radial-gradient(circle at bottom right, rgba(255,90,150,0.35), transparent 65%),
+        linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
+      `
+    }}
+  >
+    {/* Tentativas restantes */}
+    <p className="text-sm text-white/70">Tentativas restantes</p>
+
+    <p className="mt-1 text-[68px] font-extrabold leading-none bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent drop-shadow-lg">
+      {dashboardLoading ? "—" : tentativasRestantes}
+    </p>
+
+    <p className="text-xs text-white/60 -mt-1">
+      Máximo de {maxTentativas} giros por dia
+    </p>
+
+    {/* Próximo giro */}
+    <div className="mt-6">
+      <p className="text-xs text-white/70 flex items-center justify-center gap-1">
+        <Clock className="h-3.5 w-3.5" />
+        Próximo giro
+      </p>
+      <p className="mt-1 text-xl font-semibold">
+        {dashboardLoading
+          ? "Carregando..."
+          : isDailyLimit
+          ? "Amanhã"
+          : proximoHorarioMin
+          ? `${proximoHorarioMin} min`
+          : "Disponível"}
+      </p>
+    </div>
+
+    {/* Último prêmio */}
+    <div className="mt-6">
+      <p className="text-xs text-white/70 flex items-center justify-center gap-1">
+        <Gift className="h-3.5 w-3.5" />
+        Último prêmio
+      </p>
+
+      {dashboardLoading ? (
+        <p className="mt-1 text-lg font-medium">Carregando...</p>
+      ) : lastPrize ? (
+        <>
+          <p className="mt-1 text-lg font-semibold">
+            {lastPrize.name_prize}
+          </p>
+          <p className="mt-0.5 text-xs text-white/60">
+            {formatZ(lastPrize.created_at)} • Status:{" "}
+            {STATUS_LABELS[lastPrize.status] || lastPrize.status}
+          </p>
+        </>
+      ) : (
+        <p className="mt-1 text-lg font-medium">—</p>
+      )}
+    </div>
+
+  </motion.section>
 </div>
 
 
+        {/* CTA principal */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.05 }}
+          className="mt-8 flex justify-center"
+        >
+          <button
+            onClick={() => (canSpin ? router.push("/pages/user/video") : null)}
+            disabled={!canSpin}
+            className={`
+      group relative inline-flex w-full max-w-sm items-center justify-between 
+      rounded-full px-5 py-4 text-left transition
+      
+      ${canSpin
+                ? "cursor-pointer bg-gradient-to-r from-[#ff4b82] via-[#fb4668] to-[#ff8ad4] hover:brightness-110"
+                : "cursor-not-allowed bg-white/10 opacity-60"
+              }
+    `}
+          >
+            {/* brilho suave no botão */}
+            {canSpin && (
+              <span className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_0%_0%,rgba(255,255,255,0.35),transparent_55%)] opacity-70" />
+            )}
+
+            <div className="relative flex flex-col">
+              <p
+                className={`
+          text-base font-extrabold tracking-wide
+          ${canSpin ? "text-white" : "text-white/80"}
+        `}
+              >
+                {canSpin
+                  ? "Girar a Roleta"
+                  : isDailyLimit
+                    ? "Limite de giros atingido"
+                    : proximoHorarioMin
+                      ? `Aguarde ${proximoHorarioMin} min`
+                      : "Indisponível"}
+              </p>
+
+              <p className="mt-0.5 text-xs text-white/80">
+                Ganhe prêmios e acompanhe seu histórico
+              </p>
+            </div>
+
+            <div className="relative flex items-center gap-2">
+              {canSpin && (
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-xs font-semibold">
+                  GO
+                </span>
+              )}
+
+              <ChevronRight
+                className={`
+          h-6 w-6 transition-transform duration-300
+          ${canSpin ? "group-hover:translate-x-1" : "opacity-50"}
+        `}
+              />
+            </div>
           </button>
         </motion.section>
 
-        {/* Histórico de hoje */}
-        <motion.section initial={{opacity:0, y:12}} animate={{opacity:1, y:0}} transition={{duration:.4, delay:.1}} className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-5">
+
+        {/* Brindes de hoje - visual de gráfico */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="mt-8 rounded-2xl "
+        >
           <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2"><History className="h-4 w-4"/><h2 className="text-sm font-medium">Brindes de hoje</h2></div>
-            <button onClick={() => router.push("/pages/user/historico")} className="text-xs text-white/70 underline-offset-2 hover:underline">ver histórico completo</button>
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-black/20 border border-white/10">
+                <History className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col">
+                <h2 className="text-sm font-semibold">Brindes de hoje</h2>
+                <p className="text-[11px] text-white/70">
+                  {todayPrizes.length} giro{todayPrizes.length === 1 ? "" : "s"} hoje
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push("/pages/user/historico")}
+              className="text-[11px] text-white/75 underline-offset-2 hover:underline"
+            >
+              ver histórico completo
+            </button>
           </div>
 
-          {brindesHoje.length === 0 ? (
-            <p className="text-white/70">Você ainda não girou a roleta hoje.</p>
+          {dashboardLoading ? (
+            <p className="text-white/70 text-sm">Carregando...</p>
+          ) : todayPrizes.length === 0 ? (
+            <p className="text-white/75 text-sm">
+              Você ainda não girou a roleta hoje.
+            </p>
           ) : (
-            <ul className="divide-y divide-white/10">
-              {brindesHoje.map((item, idx) => (
-                <li key={idx} className="flex items-center justify-between py-2.5">
-                  <span className="text-sm text-white/80">{formatZ(item.data)}</span>
-                  <span className="text-sm font-medium">{item.premio}</span>
-                </li>
-              ))}
-            </ul>
+            <>
+              {/* “Gráfico” de barras */}
+              <div className="mt-2 overflow-x-auto">
+                <div className="flex items-end gap-4 min-w-full pb-2">
+                  {todayPrizes.map((item, index) => (
+                    <div
+                      key={item.prize_redemption_id}
+                      className="flex min-w-[56px] flex-col items-center gap-1"
+                    >
+                      {/* Barra vertical */}
+                      <div className="flex h-24 w-8 items-end rounded-full bg-white/10 overflow-hidden">
+                        <div
+                          className="w-full rounded-full bg-gradient-to-t from-[#fb4668] via-[#ff7af2] to-[#8b5cf6]"
+                          style={{
+                            // altura só pra efeito visual
+                            height: `${45 + (index % 4) * 12}%`,
+                          }}
+                        />
+                      </div>
+                      {/* Horário */}
+                      <span className="text-[10px] text-white/60">
+                        {formatZ(item.created_at)}
+                      </span>
+                      {/* Nome do prêmio */}
+                      <span className="max-w-[80px] truncate text-[11px] font-medium text-white">
+                        {item.name_prize}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
         </motion.section>
+
+
+        {dashboardError && (
+          <p className="mt-3 text-xs text-red-300">
+            {dashboardError}
+          </p>
+        )}
       </main>
 
       {/* Drawer menu */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50">
-            <div className="absolute inset-0 " style={{
-  background: `
-    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
-    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
-    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
-    #000000
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50"
+          >
+            <div
+              className="absolute inset-0 "
+            style={{
+        background: `
+    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
+    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
+    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
   `
-}}
- onClick={() => setMenuOpen(false)} />
-            <motion.aside initial={{x:-320}} animate={{x:0}} exit={{x:-320}} transition={{type:"spring", stiffness:300, damping:30}}
-              className="relative z-10 h-full w-[85%] max-w-sm border-r border-white/10 bg-[#fb4667]/0 backdrop-blur-xl p-5">
+      }}
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: -320 }}
+              animate={{ x: 0 }}
+              exit={{ x: -320 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative z-10 h-full w-[85%] max-w-sm border-r border-white/10 bg-[#fb4667]/0 backdrop-blur-xl p-5"
+            >
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-white/70">{user.email}</p>
-                  <p className="text-sm font-medium">{user.nome}</p>
+                  <p className="text-xs text-white/70">
+                    {user?.email || ""}
+                  </p>
+                  <p className="text-sm font-medium">
+                    {user?.nome || "Usuário"}
+                  </p>
                 </div>
-                <img src={user.avatarUrl} alt={user.nome} className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20" />
+                {user && (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.nome}
+                    className="h-10 w-10 rounded-full object-cover ring-2 ring-white/20"
+                  />
+                )}
               </div>
 
               <nav className="space-y-2">
-                <button onClick={() => go("/pages/user/dashboard")} className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10">
+                <button
+                  onClick={() => go("/pages/user/dashboard")}
+                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left hover:bg-white/10"
+                >
                   <span>Dashboard</span>
                   <ChevronRight className="h-4 w-4 opacity-70" />
                 </button>
-                <button onClick={() => go("/pages/user/historico")} className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10">
+                <button
+                  onClick={() => go("/pages/user/historico")}
+                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left hover:bg-white/10"
+                >
                   <span>Histórico de Prêmios</span>
                   <ChevronRight className="h-4 w-4 opacity-70" />
                 </button>
               </nav>
 
-              <div className="mt-6 border-t border-white/10 pt-4">
+              <div className="mt-6 border-t border-white/30 pt-4">
                 <button
-                  onClick={() => { clearUserToken(); go("/pages/user/signIn"); }}
-                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-red-300 hover:bg-white/10"
+                  onClick={() => {
+                    clearUserToken();
+                    go("/pages/user/signIn");
+                  }}
+                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left text-white hover:bg-white/10"
                 >
-                  <span className="flex items-center gap-2"><LogOut className="h-4 w-4"/>Sair</span>
+                  <span className="flex items-center gap-2">
+                    <LogOut className="h-4 w-4" />
+                    Sair
+                  </span>
                   <ChevronRight className="h-4 w-4 opacity-70" />
                 </button>
               </div>

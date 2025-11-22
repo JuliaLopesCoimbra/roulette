@@ -1,7 +1,7 @@
 // utils/api.js
 import { getUserToken } from "./auth";
 import { getClientToken } from "./auth";
-export const URL_BASE = "http://54.233.30.252:8000";
+export const URL_BASE = "http://127.0.0.1:8000";
 
 // utils/api.js
 async function http(path, init = {}) {
@@ -77,7 +77,24 @@ export const api = {
       audience: "user",
     }),
   me: () => http("/me", { method: "GET", audience: "user" }),
-
+  homepageUser: () =>
+    http("/spins/homepageuser", { method: "GET", audience: "user" }),
+  myPrizes: (dateStart, dateEnd) =>
+    http(`/spins/my-prizes?date_start=${dateStart}&date_end=${dateEnd}`, {
+      method: "GET",
+      audience: "user",
+    }),
+    roulettePrizes: (rouletteId) =>
+    http(`/roulettes/${rouletteId}/prizes`, {
+      method: "GET",
+      audience: "user",
+    }),
+      spin: (body) =>
+    http("/spins", {
+      method: "POST",
+      body: JSON.stringify(body),
+      audience: "user",
+    }),
   //client
   clientLogin: (body) =>
     http("/login-client", {
@@ -91,5 +108,5 @@ export const api = {
       body: JSON.stringify(body),
       audience: "client", // ← usa o client_token
     }),
-     meClient: () => http("/me-client", { method: "GET", audience: "client" }),
+  meClient: () => http("/me-client", { method: "GET", audience: "client" }),
 };

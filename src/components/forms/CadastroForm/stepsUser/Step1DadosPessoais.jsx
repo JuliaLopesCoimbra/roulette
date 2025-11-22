@@ -73,7 +73,7 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
         </button>
       </div>
 
-      <div>
+      <div className="mt-10">
         <label>Nome Completo</label>
         <input
           {...register("nome", {

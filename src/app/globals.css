@@ -10,6 +10,11 @@ nextjs-portal,
   pointer-events: none !important;
 }
 
+/* deixa o calendário sempre por cima de tudo */
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
 
 :root {
   --background: #ffffff;

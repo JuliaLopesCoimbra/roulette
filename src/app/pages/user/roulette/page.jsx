@@ -1,24 +1,34 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef, useState, Suspense } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  Suspense,
+} from "react";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
-import { useGLTF, useAnimations, OrthographicCamera, OrbitControls, Preload } from "@react-three/drei";
+import {
+  useGLTF,
+  useAnimations,
+  OrthographicCamera,
+  OrbitControls,
+  Preload,
+} from "@react-three/drei";
 import { motion } from "framer-motion";
+import prizeImages from "../../../../components/prizes/prizes";
+import { getUserToken } from "../../../../utils/auth";
 
-// import DollarRain from "../../../../components/rainMoney/DollarRain"; // removido
-import prizes from "../../../../components/prizes/prizes";
-import { addBrindeHoje, canSpinByDailyLimit } from "../../../../utils/brindesStorage";
-
-/* =================== PARAMS =================== */
+// =============== PARAMS ===============
 const MODEL_URL = "/roleta-animacoes.glb";
-const SPIN_SECONDS = 4.8; // duração total do giro
-const EXTRA_LOOPS = 4;    // voltas completas antes de parar
-const ROT_OFFSET_DEG = 0; // ajuste fino do zero, se precisar
-const SECTOR_CENTER = 0.5; // 0.5 = centro exato do setor
+const SPIN_SECONDS = 4.8;
+const EXTRA_LOOPS = 4;
+const ROT_OFFSET_DEG = 0;
+const SECTOR_CENTER = 0.5;
 
-/* =================== UTILS 3D =================== */
+// =============== UTILS 3D ===============
 function UseOrthoSync() {
   const { camera, size, invalidate } = useThree();
   useEffect(() => {
@@ -118,7 +128,7 @@ function estimateFpsFromTracks(clip) {
 
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
-/* =================== WHEEL MODEL =================== */
+// =============== WHEEL MODEL ===============
 function WheelModel({
   playTrigger,
   targetMark,
@@ -126,9 +136,9 @@ function WheelModel({
   extraLoops,
   spinSeconds,
   rotationOffsetDeg,
-  onFinish, // chamado ao terminar o giro
-  onReady,  // chamado quando o modelo/clip está pronto
-  reverseDirection = true
+  onFinish,
+  onReady,
+  reverseDirection = true,
 }) {
   const groupRef = useRef(null);
   const { scene, animations } = useGLTF(MODEL_URL);
@@ -146,7 +156,7 @@ function WheelModel({
   const targetTimeInClipRef = useRef(0);
   const actionRef = useRef(null);
   const processedTriggerRef = useRef(0);
-  const holdTimeRef = useRef(null); // ✅ tempo "congelado" após pouso
+  const holdTimeRef = useRef(null);
 
   useLayoutEffect(() => {
     scene.traverse((o) => {
@@ -159,7 +169,6 @@ function WheelModel({
     scene.updateMatrixWorld(true);
   }, [scene, gl]);
 
-  // Inicializa a action quando as animações carregarem e sinaliza "pronto"
   useEffect(() => {
     const clip = animations && animations[0];
     if (!clip) return;
@@ -179,35 +188,33 @@ function WheelModel({
     actionRef.current = a;
     invalidate();
 
-    onReady?.(); // ✅ agora o pai sabe que pode habilitar o botão "Gire"
+    onReady?.();
   }, [animations, actions, mixer, invalidate, onReady]);
 
-  // Dispara o giro quando playTrigger mudar (e o clip já existir)
   useEffect(() => {
     if (!playTrigger) return;
-
     const clip = clipRef.current;
-    if (!clip) return; // não consome o trigger; aguarda o modelo
+    if (!clip) return;
+    if (!marksCount) return;
 
     if (processedTriggerRef.current === playTrigger) return;
     processedTriggerRef.current = playTrigger;
 
-    // Ajuste para alinhar o mark ao ponteiro (meio setor)
-   // Ajuste para alinhar o mark ao ponteiro
-const offsetMarks = (rotationOffsetDeg / 360) * marksCount;
-const idxAdjFloat = targetMark + offsetMarks;
+    // ajuste mark alvo
+    const offsetMarks = (rotationOffsetDeg / 360) * marksCount;
+    const idxAdjFloat = targetMark + offsetMarks;
+    const idxAdj = ((idxAdjFloat % marksCount) + marksCount) % marksCount;
 
-
-const idxAdj = ((idxAdjFloat % marksCount) + marksCount) % marksCount;
-// tempo do CENTRO do setor escolhido
-const targetTimeInClip = ((idxAdj + SECTOR_CENTER) / marksCount) * clip.duration;
-
+    const targetTimeInClip =
+      ((idxAdj + SECTOR_CENTER) / marksCount) * clip.duration;
 
     const totalCyclesTime = (extraLoops || 0) * clip.duration;
- const reverseTarget = (clip.duration - (targetTimeInClip % clip.duration)) % clip.duration;
-const finalTime = reverseDirection
-    ? -(totalCyclesTime + reverseTarget)  // ← tempo negativo (giro anti-horário)
-    :  (totalCyclesTime + targetTimeInClip);
+    const reverseTarget =
+      (clip.duration - (targetTimeInClip % clip.duration)) % clip.duration;
+    const finalTime = reverseDirection
+      ? -(totalCyclesTime + reverseTarget)
+      : totalCyclesTime + targetTimeInClip;
+
     targetTimeInClipRef.current = targetTimeInClip;
     fromTimeRef.current = 0;
     finalTimeRef.current = finalTime;
@@ -220,9 +227,16 @@ const finalTime = reverseDirection
     a.play();
     mixer.update(0);
     invalidate();
-  }, [playTrigger, targetMark, marksCount, rotationOffsetDeg, extraLoops, clock, invalidate]);
+  }, [
+    playTrigger,
+    targetMark,
+    marksCount,
+    rotationOffsetDeg,
+    extraLoops,
+    clock,
+    invalidate,
+  ]);
 
-  // Avança o tempo da animação manualmente com easing e encerra no frame/tempo alvo
   useFrame(() => {
     if (!spinningRef.current || !actionRef.current || !clipRef.current) return;
     const now = clock.getElapsedTime();
@@ -233,9 +247,9 @@ const finalTime = reverseDirection
       fromTimeRef.current + (finalTimeRef.current - fromTimeRef.current) * eased;
 
     const clipDur = clipRef.current.duration || 1e-6;
-     const timeInClip = reverseDirection  // normaliza para [0, D) mesmo com tempo negativo
-    ? ((currentAggTime % clipDur) + clipDur) % clipDur
-   : (currentAggTime % clipDur);
+    const timeInClip = reverseDirection
+      ? ((currentAggTime % clipDur) + clipDur) % clipDur
+      : currentAggTime % clipDur;
 
     actionRef.current.time = timeInClip;
     mixer.update(0);
@@ -243,20 +257,16 @@ const finalTime = reverseDirection
 
     if (t >= 1) {
       spinningRef.current = false;
-
-      // ✅ congele exatamente no tempo do prêmio
       const hold = targetTimeInClipRef.current % clipDur;
       holdTimeRef.current = hold;
       actionRef.current.time = hold;
       actionRef.current.paused = true;
       mixer.update(0);
       invalidate();
-
       onFinish?.();
     }
   });
 
-  // (D) se houver qualquer re-render depois do pouso, reafirme o frame congelado
   useEffect(() => {
     if (!spinningRef.current && actionRef.current && holdTimeRef.current != null) {
       actionRef.current.time = holdTimeRef.current;
@@ -265,7 +275,7 @@ const finalTime = reverseDirection
       invalidate();
     }
   });
-  
+
   return (
     <>
       <group ref={groupRef}>
@@ -276,34 +286,81 @@ const finalTime = reverseDirection
   );
 }
 
-/* =================== PÁGINA / INTEGRAÇÃO =================== */
+// =============== PÁGINA ===============
+const STATUS_LABELS = {
+  reserved: "Reservado",
+  redeemed: "Retirado",
+  canceled: "Cancelado",
+};
+
 export default function Roulette3D() {
   const router = useRouter();
-
+  const [prizes, setPrizes] = useState([]); //  vindo do back
+  const [prizesLoading, setPrizesLoading] = useState(true);
+  const [prizesError, setPrizesError] = useState(null);
   const [isSpinning, setIsSpinning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [prizeWon, setPrizeWon] = useState(null);
-  const [hasSpun, setHasSpun] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
   const [adCountdown, setAdCountdown] = useState(5);
   const [adClosable, setAdClosable] = useState(false);
   const [adShownForThisPrize, setAdShownForThisPrize] = useState(false);
-  const [showCooldownMessage, setShowCooldownMessage] = useState(false);
-  const [limitReached, setLimitReached] = useState(false);
   const [showOfferButton, setShowOfferButton] = useState(false);
   const [modelReady, setModelReady] = useState(false);
-
   const [playTrigger, setPlayTrigger] = useState(0);
   const [targetMark, setTargetMark] = useState(0);
-  const marksCount = prizes.length;
-  const [pendingPrizeIndex, setPendingPrizeIndex] = useState(null);
+  const [pendingPrize, setPendingPrize] = useState(null);       // objeto do prêmio
+  const [pendingSectorIndex, setPendingSectorIndex] = useState(null); // índice no prizeImages
 
+  const marksCount = prizeImages.length;
+
+  // carregar prêmios da roleta 5
   useEffect(() => {
-    setLimitReached(!canSpinByDailyLimit());
-  }, []);
+    const tok = getUserToken();
+    if (!tok) {
+      router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
+      return;
+    }
 
-  // Anúncio: cronômetro e CTA
+    setPrizesLoading(true);
+    setPrizesError(null);
+
+    import("../../../../utils/api")
+      .then(({ api }) => api.roulettePrizes(5))
+      .then((data) => {
+        const mapped = (data || []).map((item) => {
+          const prize = item.prize || {};
+          const brandName = mapPrizeNameToBrand(prize.name_prize);
+
+          const local = prizeImages.find((p) => p.name === brandName);
+
+          return {
+            roulette_id: item.roulette_id,
+            prize_id: prize.prize_ID,
+            name_prize: brandName,           // agora casa com prizeImages
+            raw_name: prize.name_prize,      // opcional: nome original do back
+            attributes: prize.attributes || null,
+            image: local?.image || "/img/prizes/default.png",
+          };
+        });
+
+        setPrizes(mapped);
+      })
+
+
+      .catch((err) => {
+        console.error("Erro ao carregar prizes da roleta:", err);
+        setPrizesError(
+          err?.message || "Não foi possível carregar os prêmios da roleta."
+        );
+      })
+      .finally(() => {
+        setPrizesLoading(false);
+      });
+  }, [router]);
+
+  // anúncio: contagem e CTA
   useEffect(() => {
     if (!showAdModal) return;
     setAdCountdown(5);
@@ -333,85 +390,157 @@ export default function Roulette3D() {
     transition: { duration: 0.6, delay },
   });
 
-  const comeBack = () => router.push("/pages/user/dashboard");
-
   const handleSpin = () => {
-    if (!modelReady || isSpinning || loading) return;
+    if (!modelReady || isSpinning || loading || !marksCount) return;
 
-    // Se quiser habilitar as regras, descomente:
-    // if (!canSpinByDailyLimit()) { setLimitReached(true); setShowCooldownMessage(true); return; }
-    // const cooldownRaw = localStorage.getItem("roletaCooldown");
-    // if (cooldownRaw && Number(cooldownRaw) > Date.now()) { setShowCooldownMessage(true); return; }
+    const tok = getUserToken();
+    if (!tok) {
+      router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
+      return;
+    }
 
     setIsSpinning(true);
     setLoading(true);
 
-    const prizeIndex = Math.floor(Math.random() * prizes.length);
-    setPendingPrizeIndex(prizeIndex);
-    setTargetMark(prizeIndex); // 1 setor = 1 prêmio → alinhamento garantido
-    setPlayTrigger((n) => n + 1);
+    import("../../../../utils/api")
+      .then(({ api }) =>
+        api.spin({
+          roulette_id: "5",
+          campaign_id: "1",
+          ip_address: "200.200.1.1", // se quiser melhorar depois, beleza
+        })
+      )
+      .then((spin) => {
+        // spin: { spin_id, roulette_id, rouletteprize_id, prize_id, result, ... }
+
+        if (spin.result !== "win" || !spin.prize_id) {
+          console.warn("Spin não vencedor ou sem prize_id:", spin);
+
+          const loseBrand = "Não foi dessa vez";
+          const loseImage =
+            prizeImages.find((p) => p.name === loseBrand)?.image ||
+            "/img/prizes/default.png";
+
+          // setor de "não foi dessa vez"
+          const loseSectorIndex = prizeImages.findIndex(
+            (p) => p.name === loseBrand
+          );
+
+          setPendingPrize({
+            prize_id: null,
+            name_prize: loseBrand,
+            image: loseImage,
+          });
+          setPendingSectorIndex(loseSectorIndex === -1 ? 0 : loseSectorIndex);
+          setTargetMark(loseSectorIndex === -1 ? 0 : loseSectorIndex);
+          setPlayTrigger((n) => n + 1);
+          return;
+        }
+
+        // 1) achar o PRÊMIO lógico pelo prize_id
+        const matchedPrize = prizes.find(
+          (p) => String(p.prize_id) === String(spin.prize_id)
+        );
+
+        if (!matchedPrize) {
+          console.warn("Não encontrei prize pelo prize_id, fallback:", spin);
+
+          // fallback: usa setor 0
+          setPendingPrize({
+            prize_id: spin.prize_id,
+            name_prize: "Prêmio surpresa",
+            image: "/img/prizes/default.png",
+          });
+          setPendingSectorIndex(0);
+          setTargetMark(0);
+          setPlayTrigger((n) => n + 1);
+          return;
+        }
+
+        // 2) descobrir em qual setor está esse prêmio (pelo nome normalizado)
+        const sectorIndex = prizeImages.findIndex(
+          (img) => img.name === matchedPrize.name_prize
+        );
+
+        const finalSectorIndex = sectorIndex === -1 ? 0 : sectorIndex;
+
+        // 3) guardar prêmio + setor
+        setPendingPrize(matchedPrize);
+        setPendingSectorIndex(finalSectorIndex);
+
+        // 4) mandar setor para a roleta girar
+        setTargetMark(finalSectorIndex);
+        setPlayTrigger((n) => n + 1);
+      })
+      .catch((err) => {
+        console.error("Erro ao girar roleta:", err);
+        setIsSpinning(false);
+        setLoading(false);
+        alert(err?.message || "Erro ao tentar girar a roleta.");
+      });
   };
 
   const onSpinFinish = () => {
     setIsSpinning(false);
     setLoading(false);
-    if (pendingPrizeIndex == null) return;
 
-    const prize = prizes[pendingPrizeIndex];
-    setPrizeWon(prize);
+    if (!pendingPrize) {
+      console.warn("onSpinFinish chamado sem pendingPrize");
+      return;
+    }
+
+    console.log("prêmio que realmente caiu:", pendingPrize);
+    setPrizeWon(pendingPrize);
     setAdShownForThisPrize(false);
-
-    const name = (prize.name || "").toLowerCase();
-    const isRetry =
-      name.includes("tente de novo") ||
-      name.includes("não foi dessa vez") ||
-      name.includes("nao foi dessa vez");
-
-    if (isRetry) {
-      setHasSpun(false);
-      setTimeout(() => setShowModal(true), 1500);
-      return;
-    }
-
-    // Salva brinde e aplica cooldown
-    const res = addBrindeHoje(prize.name);
-    if (!res.ok) {
-      setLimitReached(true);
-      setShowCooldownMessage(true);
-      return;
-    }
-
-    setHasSpun(true);
-    const expiration = Date.now() + 3 * 60 * 60 * 1000;
-    localStorage.setItem("roletaCooldown", expiration.toString());
-
-    setTimeout(() => setShowModal(true), 1500);
-    setTimeout(() => setShowCooldownMessage(true), 1200);
+    setShowModal(true);
   };
-const openAdOnce = () => {
-  if (!adShownForThisPrize) {
-    setAdShownForThisPrize(true);
-    // abre já; se quiser delay, reintroduza o setTimeout
-    setShowAdModal(true);
+
+
+  const openAdOnce = () => {
+    if (!adShownForThisPrize) {
+      setAdShownForThisPrize(true);
+      setShowAdModal(true);
+    }
+  };
+
+  function mapPrizeNameToBrand(prizeName) {
+    const n = (prizeName || "").toLowerCase();
+
+    if (n.includes("mov")) return "Movida";
+    if (n.includes("vivo")) return "Vivo";
+    if (n.includes("bud")) return "Budweiser";
+    if (n.includes("globo")) return "Não foi dessa vez"; // Globoplay -> "não foi dessa vez"
+    if (n.includes("baudu")) return "Bauducco";
+    if (n.includes("tri")) return "Trident";
+    if (n.includes("super")) return "Superbet";
+    if (n.includes("kitkat")) return "Kitkat";
+    if (n.includes("coca")) return "Coca-Cola";
+    if (n.includes("hell")) return "Hellmann's";
+
+    return prizeName || "Prêmio";
   }
-};
 
   return (
     <div
       className="flex flex-col items-center justify-center min-h-screen z-20"
-    style={{
+         style={{
         background: `
-          radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
-          radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
-          radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
-          #000000
-        `,
+    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
+    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
+    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
+  `
       }}
     >
       <motion.div {...fadeIn(0)}>
-        {/* Container da roleta com ponteiro fixo por cima */}
+        {/* Mensagem de erro de prizes */}
+        {prizesError && (
+          <p className="mb-4 text-sm text-red-300 text-center">
+            {prizesError}
+          </p>
+        )}
+
+        {/* Container da roleta */}
         <div className="relative flex flex-col items-center w-[55vh]">
-          {/* Ponteiro (SVG) centralizado no topo */}
           <img
             src="/img/roulette/ponteiro.svg"
             alt="Ponteiro"
@@ -419,182 +548,192 @@ const openAdOnce = () => {
           />
 
           <div className="w-[55vh] h-[55vh]">
-            <Canvas dpr={[1, 2]} shadows>
-              <Suspense fallback={null}>
-                <WheelModel
-                  playTrigger={playTrigger}
-                  targetMark={targetMark}
-                  marksCount={marksCount}
-                  extraLoops={EXTRA_LOOPS}
-                  spinSeconds={SPIN_SECONDS}
-                  rotationOffsetDeg={ROT_OFFSET_DEG}
-                  onFinish={onSpinFinish}
-                  onReady={() => setModelReady(true)}
-                  reverseDirection={true}
+            {marksCount > 0 && (
+              <Canvas dpr={[1, 2]} shadows>
+                <Suspense fallback={null}>
+                  <WheelModel
+                    playTrigger={playTrigger}
+                    targetMark={targetMark}
+                    marksCount={marksCount}
+                    extraLoops={EXTRA_LOOPS}
+                    spinSeconds={SPIN_SECONDS}
+                    rotationOffsetDeg={ROT_OFFSET_DEG}
+                    onFinish={onSpinFinish}
+                    onReady={() => setModelReady(true)}
+                    reverseDirection={true}
+                  />
+                  <Preload all />
+                </Suspense>
+
+                <UseOrthoSync />
+                <OrthographicCamera
+                  makeDefault
+                  zoom={4}
+                  position={[0, 0, 30]}
                 />
-                <Preload all />
-              </Suspense>
+                <ControlsFrontLocked />
 
-              <UseOrthoSync />
-              <OrthographicCamera makeDefault zoom={4} position={[0, 0, 30]} />
-              <ControlsFrontLocked />
-
-              <ambientLight intensity={1.5} />
-              <directionalLight intensity={1} position={[10, 10, 10]} />
-            </Canvas>
+                <ambientLight intensity={1.5} />
+                <directionalLight intensity={1} position={[10, 10, 10]} />
+              </Canvas>
+            )}
           </div>
         </div>
 
-        {/* Botão abaixo da roleta */}
+        {/* Botão girar */}
         <div className="w-full flex justify-center mt-6">
-        <button
+      <button
   onClick={handleSpin}
-  disabled={
-    !modelReady ||
-    isSpinning ||
-    loading ||
-    (hasSpun &&
-      prizeWon &&
-      !(prizeWon.name || "").toLowerCase().includes("tente de novo") &&
-      !(prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
-  }
+  disabled={!modelReady || isSpinning || loading || !marksCount}
   className={`
-    relative group px-8 py-3 rounded-full select-none tracking-wide font-semibold
-    bg-gradient-to-r from-[#fb4667] to-[#c42441]
-    text-[#ffeaf0] transition-all duration-300
-    border border-[#ffffff20]
-    shadow-[0_0_15px_rgba(251,70,103,0.55)] 
-    backdrop-blur-xl
-
-    ${isSpinning || loading ? "" : "hover:scale-[1.08] hover:rotate-[0.8deg]"}
-
-    disabled:opacity-30 disabled:cursor-not-allowed disabled:saturate-0
+    relative select-none tracking-wide font-semibold
+    px-10 py-4 rounded-xl text-xl
+    text-white
+    bg-gradient-to-b from-[#ff4b6e] to-[#ff1f5a]
+    shadow-[0_0_25px_rgba(255,20,70,0.8),0_0_45px_rgba(255,70,120,0.6)]
+    border border-white/20
+    transition-all duration-200
+    ${isSpinning || loading ? "" : "hover:scale-110 hover:shadow-[0_0_35px_rgba(255,40,90,0.9),0_0_60px_rgba(255,90,130,0.8)]"}
+    disabled:opacity-30 disabled:cursor-not-allowed
   `}
 >
-  {/* texto */}
-  <span className="relative z-20 drop-shadow-[0_0_4px_rgba(0,0,0,0.45)]">
-    {isSpinning
-      ? "Girando..."
-      : loading
-      ? "Buscando..."
-      : hasSpun &&
-        prizeWon &&
-        ((prizeWon.name || "").toLowerCase().includes("tente de novo") ||
-          (prizeWon.name || "").toLowerCase().includes("não foi dessa vez"))
-      ? "Tente de novo"
-      : "Gire"}
+  <span className="relative z-10 drop-shadow-[0_0_6px_black]">
+    {isSpinning ? "Girando..." : loading ? "Buscando..." : "GIRAR AGORA"}
   </span>
 
-  {/* glow principal */}
-  <span className="absolute inset-0 rounded-full opacity-70 bg-gradient-to-r from-[#fb4667] to-[#ff6f88]
-      blur-xl transition-transform duration-300 
-      group-hover:scale-[1.35] group-hover:opacity-90 pointer-events-none">
-  </span>
-
-  {/* borda interna brilhante */}
-  <span className="absolute inset-0 rounded-full border border-white/20 pointer-events-none"></span>
+  {/* Glow pulsante */}
+  <span className="absolute inset-0 rounded-xl bg-[#ff1f5a] blur-xl opacity-50 animate-pulse pointer-events-none"></span>
 </button>
 
         </div>
 
-        {hasSpun && showCooldownMessage && (
-          <div className="relative justify-center items-center text-center w-[55vh]">
-            <p className="mt-16 text-lg z-10">Você pode tentar novamente em 3 horas</p>
-            <button
-              onClick={() => router.push("/pages/user/dashboard")}
-              className="mt-2 px-4 py-2 bg-[#fb4667] text-white rounded hover:bg-[#ff1d46] shadow-md transition"
-            >
-              Voltar
-            </button>
-          </div>
-        )}
-
-       {/* Modal de prêmio */}
-{showModal && prizeWon && (
- <div
-  className="fixed inset-0 z-50 flex items-center justify-center min-h-screen overflow-y-auto"
-  onClick={openAdOnce}
->
-
-    {/* Fundo claro rosado */}
+        {/* Modal de prêmio */}
+      {showModal && prizeWon && (
+  <div
+    className="
+      fixed inset-0 z-50
+      flex items-center justify-center
+      px-4
+      bg-black/70 backdrop-blur-sm
+    "
+    onClick={() => {
+      // Ao fechar no backdrop, já dispara o fluxo do anúncio
+      openAdOnce();
+    }}
+  >
+    {/* Fundo decorativo suave */}
     <div
-      className="absolute inset-0 backdrop-blur-md"
+      className="pointer-events-none absolute inset-0 opacity-70"
       style={{
         background: `
-          radial-gradient(900px 600px at 50% 10%, rgba(255,182,193,0.38), transparent 70%),
-          radial-gradient(1200px 900px at 50% 90%, rgba(251,70,103,0.18), transparent 70%),
-          rgba(255,255,255,0.45)
+          radial-gradient(800px 600px at 50% 0%, rgba(255,182,193,0.32), transparent 70%),
+          radial-gradient(900px 900px at 50% 100%, rgba(251,70,103,0.25), transparent 70%)
         `,
       }}
     />
 
     <motion.div
-      initial={{ opacity: 0, y: 10, scale: 0.97 }}
+      initial={{ opacity: 0, y: 16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      // 3) Remova o stopPropagation e também chame openAdOnce aqui:
-      onClick={openAdOnce}
-      className="relative mx-auto w-[92vw] max-w-md rounded-2xl p-6 text-center border border-white/30 shadow-lg"
+      onClick={(e) => e.stopPropagation()} // Não dispara o anúncio ao clicar dentro
+      className="
+        relative w-full max-w-md
+        rounded-3xl
+        border border-white/25
+        bg-white/90
+        shadow-[0_18px_60px_rgba(0,0,0,0.55)]
+        px-6 pt-5 pb-6
+        text-center
+      "
       style={{
-        backdropFilter: "blur(14px)",
-        background: "linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,245,247,0.65))",
+        backdropFilter: "blur(18px)",
       }}
     >
-      {(prizeWon.name || "").toLowerCase().includes("não foi dessa vez") ? (
+      {/* Badge topo + botão fechar discreto */}
+      <div className="mb-3 flex items-center justify-between">
+        <span className="inline-flex items-center gap-1 rounded-full bg-pink-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#fb4667]">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#fb4667]" />
+          Resultado
+        </span>
+
+        <button
+          onClick={() => {
+            setShowModal(false);
+            openAdOnce();
+          }}
+          className="text-xs text-gray-500 hover:text-gray-700 transition"
+        >
+          Fechar
+        </button>
+      </div>
+
+      {String(prizeWon.name_prize || "").toLowerCase().includes("não foi dessa vez") ? (
         <>
-          <h2 className="text-xl font-semibold text-[#fb4667]">Não foi dessa vez 😢</h2>
-          <p className="mt-2 text-sm text-gray-700">Tente novamente mais tarde!</p>
+          {/* Ícone / Emoji de “não foi dessa vez” */}
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-gray-200 to-gray-100 shadow-inner">
+            <span className="text-3xl">😢</span>
+          </div>
+
+          <h2 className="text-xl font-semibold text-gray-900">
+            Não foi dessa vez
+          </h2>
+          <p className="mt-2 text-sm text-gray-700">
+            Mas não desanima! Volte mais tarde e tente a sorte novamente. ✨
+          </p>
 
           <button
-            // Obs.: "qualquer lugar" abre o anúncio — inclusive botões.
             onClick={() => {
               setShowModal(false);
               openAdOnce();
             }}
-            className="mt-6 px-6 py-2 rounded-full bg-[#fb4667] text-white hover:opacity-90 transition"
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-black transition"
           >
-            Fechar
+            Entendi
           </button>
         </>
       ) : (
         <>
-          <h2 className="text-2xl font-bold text-[#fb4667]"> Parabéns! </h2>
-   <p className="text-gray-700">
-            Você ganhou um voucher da: <strong className="text-[#fb4667]">{prizeWon.name}</strong>
-          </p>
-          <img
-            src={"/img/rockinrio.png"}
-            alt={prizeWon.name}
-            className="w-28 h-28 object-contain mx-auto my-4 drop-shadow-md"
-          />
-
-       
-
-          {/* Cupom */}
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <code className="px-4 py-2 rounded-lg bg-white text-[#fb4667] border border-[#fb4667]/30 tracking-wider font-semibold">
-              NFS125
-            </code>
-
-            <button
-              onClick={() => {
-                navigator.clipboard?.writeText("NFS125");
-                openAdOnce();
-              }}
-              className="px-3 py-2 rounded-lg text-sm bg-[#fb4667]/90 text-white hover:bg-[#fb4667] transition"
-            >
-              Copiar
-            </button>
+          {/* Coroa / selo de vencedor */}
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#ff9bb4] to-[#fb4667] shadow-[0_0_24px_rgba(251,70,103,0.5)]">
+            <span className="text-3xl drop-shadow-sm">🎉</span>
           </div>
+
+          <h2 className="text-2xl font-bold text-[#fb4667]">
+            Parabéns!
+          </h2>
+          <p className="mt-1 text-sm text-gray-800">
+            Você ganhou um voucher de:
+          </p>
+          <p className="mt-1 text-base font-semibold text-gray-900">
+            {prizeWon.name_prize}
+          </p>
+
+          {/* Imagem do prêmio com moldura */}
+          <div className="mt-4 flex justify-center">
+            <div className="relative inline-flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#ffe4ec] to-[#ffd4de] p-[2px]">
+              <div className="rounded-2xl bg-white px-4 py-3">
+                <img
+                  src={prizeWon.image}
+                  alt={prizeWon.name_prize}
+                  className="h-20 w-20 object-contain drop-shadow-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-3 text-xs text-gray-600">
+            Apresente seu voucher no ponto de troca oficial para retirar o brinde.
+          </p>
 
           <button
             onClick={() => {
               setShowModal(false);
               openAdOnce();
             }}
-            className="mt-6 px-6 py-2 rounded-full bg-[#fb4667] text-white hover:opacity-90 transition"
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-[#fb4667] px-7 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(251,70,103,0.55)] hover:brightness-110 transition"
           >
-            Fechar
+            Fechar e continuar
           </button>
         </>
       )}
@@ -602,82 +741,75 @@ const openAdOnce = () => {
   </div>
 )}
 
- {/* Modal de anúncio */}
-{showAdModal && (
-  <div
-    className="
+
+        {/* Modal de anúncio */}
+        {showAdModal && (
+          <div
+            className="
       fixed inset-0 z-[100]
       flex items-center justify-center
       bg-black/90
       overflow-hidden
     "
-    style={{ touchAction: "none" }}
-  >
-    {/* Container full-viewport */}
-    <div className="relative w-full h-[100dvh]">
-      {/* Imagem sem corte (object-contain) */}
-      <img
-        src="/img/bauducco.jpg"
-        alt="Anúncio"
-        className="absolute inset-0 w-full h-full object-contain bg-black"
-        onClick={(e) => {
-          // Clique na imagem não fecha enquanto estiver bloqueado
-          if (adClosable) setShowAdModal(false);
-        }}
-        draggable={false}
-      />
+            style={{ touchAction: "none" }}
+          >
+            <div className="relative w-full h-[100dvh]">
+              <img
+                src="/img/bauducco.jpg"
+                alt="Anúncio"
+                className="absolute inset-0 w-full h-full object-contain bg-black"
+                onClick={(e) => {
+                  if (adClosable) setShowAdModal(false);
+                }}
+                draggable={false}
+              />
 
-      {/* Botão fechar FIXO na viewport e com safe-area */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          if (adClosable) setShowAdModal(false);
-        }}
-        className="
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (adClosable) setShowAdModal(false);
+                }}
+                className="
           fixed
           z-[110]
           text-white
           rounded-full px-3 py-1
           text-[3vh] leading-none
         "
-        style={{
-          top: "calc(env(safe-area-inset-top, 0px) + 12px)",
-          right: "calc(env(safe-area-inset-right, 0px) + 12px)",
-        }}
-      >
-        {adClosable ? "×" : adCountdown}
-      </button>
+                style={{
+                  top: "calc(env(safe-area-inset-top, 0px) + 12px)",
+                  right: "calc(env(safe-area-inset-right, 0px) + 12px)",
+                }}
+              >
+                {adClosable ? "×" : adCountdown}
+              </button>
 
-      {/* CTA centralizado, respeitando a safe-area inferior */}
-      {showOfferButton && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed left-1/2 -translate-x-1/2 z-[110]"
-          style={{
-            bottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
-          }}
-        >
-          <button
-            onClick={() =>
-              window.open(
-                "https://www.lojabauducco.com.br/?utm_source=google&utm_medium=cpc&utm_campaign=bauducco_pmax_aquisicao_sp_conversao_compras",
-                "_blank"
-              )
-            }
-            className="px-6 py-3 bg-yellow-500 text-black font-semibold rounded-full hover:bg-yellow-600 shadow-md transition"
-          >
-            Acessar Oferta
-          </button>
-        </motion.div>
-      )}
-    </div>
-  </div>
-)}
-
-
-
+              {showOfferButton && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="fixed left-1/2 -translate-x-1/2 z-[110]"
+                  style={{
+                    bottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
+                  }}
+                >
+                  <button
+                    onClick={() =>
+                      window.open(
+                        "https://www.lojabauducco.com.br/?utm_source=google&utm_medium=cpc&utm_campaign=bauducco_pmax_aquisicao_sp_conversao_compras",
+                        "_blank"
+                      )
+                    }
+                    className="px-6 py-3 bg-yellow-500 text-black font-semibold rounded-full hover:bg-yellow-600 shadow-md transition"
+                  >
+                    Acessar Oferta
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );

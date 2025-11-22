@@ -66,14 +66,13 @@ export default function ActiveRoulettePage() {
     })();
   }, [router]);
   return (
-    <div className="relative min-h-screen text-white" style={{
-  background: `
-    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
-    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
-    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
-    #000000
+   <div className="relative min-h-screen text-white flex flex-col"  style={{
+        background: `
+    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
+    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
+    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
   `
-}}
+      }}
 >
          <header className="relative mx-auto w-full max-w-2xl px-5 pt-5">
         <div className="flex items-center justify-end gap-3">
@@ -99,7 +98,7 @@ export default function ActiveRoulettePage() {
         className="absolute inset-0"
       
       />
-      <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-md items-center px-5">
+<main className="relative z-10 mx-auto w-full max-w-md flex-1 pt-35 px-5">
         <motion.div
           initial={{ y: 14, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

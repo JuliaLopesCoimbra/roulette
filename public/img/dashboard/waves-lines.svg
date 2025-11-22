@@ -1,0 +1,143 @@
+<svg
+  width="1440"
+  height="320"
+  viewBox="0 0 1440 320"
+  xmlns="http://www.w3.org/2000/svg"
+  preserveAspectRatio="none"
+>
+  <defs>
+    <!-- Gradientes baseados em #fb4668 -->
+    <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff9ad0" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#fb4668" stop-opacity="1" />
+      <stop offset="100%" stop-color="#ffb3ff" stop-opacity="0.9" />
+    </linearGradient>
+
+    <linearGradient id="waveGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4fd1ff" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#9f7bff" stop-opacity="1" />
+      <stop offset="100%" stop-color="#ff9ad0" stop-opacity="0.9" />
+    </linearGradient>
+
+    <linearGradient id="waveGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
+      <stop offset="50%" stop-color="#ff7acb" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#fb4668" stop-opacity="0.9" />
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo transparente -->
+  <rect width="1440" height="320" fill="none" />
+
+  <!-- Linha base mais grossa -->
+  <path
+    d="M0,190 C160,150 320,210 480,180 C640,150 800,210 960,185 C1120,160 1280,200 1440,170"
+    fill="none"
+    stroke="url(#waveGrad3)"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-opacity="0.9"
+  >
+    <animate
+      attributeName="d"
+      dur="14s"
+      repeatCount="indefinite"
+      values="
+        M0,190 C160,150 320,210 480,180 C640,150 800,210 960,185 C1120,160 1280,200 1440,170;
+        M0,200 C160,170 320,190 480,160 C640,140 800,215 960,195 C1120,175 1280,190 1440,180;
+        M0,190 C160,150 320,210 480,180 C640,150 800,210 960,185 C1120,160 1280,200 1440,170
+      "
+    />
+  </path>
+
+  <!-- Fios finos (onda 1) -->
+  <path
+    d="M0,180 C160,130 320,200 480,160 C640,120 800,200 960,170 C1120,140 1280,190 1440,160"
+    fill="none"
+    stroke="url(#waveGrad1)"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-opacity="0.95"
+    stroke-dasharray="6 10"
+  >
+    <animate
+      attributeName="d"
+      dur="10s"
+      repeatCount="indefinite"
+      values="
+        M0,180 C160,130 320,200 480,160 C640,120 800,200 960,170 C1120,140 1280,190 1440,160;
+        M0,170 C160,140 320,190 480,170 C640,130 800,190 960,180 C1120,150 1280,200 1440,170;
+        M0,180 C160,130 320,200 480,160 C640,120 800,200 960,170 C1120,140 1280,190 1440,160
+      "
+    />
+    <animate
+      attributeName="stroke-dashoffset"
+      dur="4s"
+      from="0"
+      to="-80"
+      repeatCount="indefinite"
+    />
+  </path>
+
+  <!-- Fios finos (onda 2) -->
+  <path
+    d="M0,200 C160,170 320,220 480,190 C640,160 800,220 960,200 C1120,180 1280,210 1440,190"
+    fill="none"
+    stroke="url(#waveGrad2)"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-opacity="0.85"
+    stroke-dasharray="8 14"
+  >
+    <animate
+      attributeName="d"
+      dur="12s"
+      repeatCount="indefinite"
+      values="
+        M0,200 C160,170 320,220 480,190 C640,160 800,220 960,200 C1120,180 1280,210 1440,190;
+        M0,210 C160,180 320,210 480,200 C640,170 800,215 960,205 C1120,185 1280,220 1440,200;
+        M0,200 C160,170 320,220 480,190 C640,160 800,220 960,200 C1120,180 1280,210 1440,190
+      "
+    />
+    <animate
+      attributeName="stroke-dashoffset"
+      dur="6s"
+      from="0"
+      to="-120"
+      repeatCount="indefinite"
+    />
+  </path>
+
+  <!-- Fio mais claro por cima -->
+  <path
+    d="M0,185 C160,145 320,195 480,170 C640,145 800,205 960,180 C1120,155 1280,195 1440,175"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="1.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-opacity="0.7"
+    stroke-dasharray="4 12"
+  >
+    <animate
+      attributeName="d"
+      dur="11s"
+      repeatCount="indefinite"
+      values="
+        M0,185 C160,145 320,195 480,170 C640,145 800,205 960,180 C1120,155 1280,195 1440,175;
+        M0,175 C160,155 320,190 480,180 C640,155 800,200 960,185 C1120,165 1280,200 1440,180;
+        M0,185 C160,145 320,195 480,170 C640,145 800,205 960,180 C1120,155 1280,195 1440,175
+      "
+    />
+    <animate
+      attributeName="stroke-dashoffset"
+      dur="5s"
+      from="0"
+      to="-60"
+      repeatCount="indefinite"
+    />
+  </path>
+</svg>
