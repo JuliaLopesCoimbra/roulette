@@ -15,6 +15,14 @@ const data = {
   ],
 };
 
+type NodeData = {
+  id?: string;
+  value?: number;
+  color?: string;
+  name?: string;
+  children?: NodeData[];
+};
+
 export default function FavoriteSocialMediaDistribution() {
   return (
     <div className="w-full h-[360px]">
@@ -22,13 +30,13 @@ export default function FavoriteSocialMediaDistribution() {
         data={data}
         theme={NIVO_DARK_THEME}
         margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-        colors={(node) => node.data.color ?? "#ffffff"} // ✅ cor própria
+        colors={(node) => (node.data as NodeData).color ?? "#ffffff"}
         padding={4}
         leavesOnly
         enableLabels
-        label={(node) => node.id as string} // ✅ nome da rede dentro da bolha
+        label={(node) => node.id as string}
         labelTextColor="#ffffff"
-        labelSkipRadius={18} // só mostra label se a bolha for grande suficiente
+        labelsSkipRadius={18}
         borderWidth={2}
         borderColor="rgba(255,255,255,0.25)"
         tooltip={(node) => (
