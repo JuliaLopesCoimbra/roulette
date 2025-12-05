@@ -389,6 +389,8 @@ export default function Roulette3D() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6, delay },
   });
+
+  
  const handleSpin = () => {
     if (!modelReady || isSpinning || loading || !marksCount) return;
 

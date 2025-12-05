@@ -32,7 +32,7 @@ export default function Header({
     >
         <div className="flex justify-center ">
           <img
-            src="/img/logo/adword.png"
+            src="/img/logo/logo-dverti.png"
             alt="Muscle Club"
             className="h-10 w-auto opacity-95"
           />

@@ -97,11 +97,7 @@ export default function Dashboard() {
     <div
       className="min-h-screen p-4 text-gray-100"
     style={{
-        background: `
-    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
-    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
-    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
-  `
+         background:"white"
       }}
     >
     <header className="relative z-10 mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">
@@ -122,13 +118,13 @@ export default function Dashboard() {
 
           {/* Textos */}
           <div className="flex flex-col">
-            <p className="text-xs text-white/80">
+            <p className="text-xs text-black/80">
               Bem vindo de volta,
             </p>
-            <p className="text-lg font-semibold leading-tight">
+            <p className="text-lg font-semibold leading-tight text-black">
               {user.nome}!
             </p>
-            <p className="mt-0.5 text-[11px] text-white/70">
+            <p className="mt-0.5 text-[11px] text-black/70">
               {user.email}
             </p>
           </div>
@@ -147,7 +143,7 @@ export default function Dashboard() {
     {/* Botão de menu à direita */}
     <button
       onClick={() => setMenuOpen(true)}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition shadow-lg backdrop-blur-sm"
+      className="inline-flex h-10 w-10 text-black items-center justify-center rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition shadow-lg backdrop-blur-sm"
     >
       <Menu className="h-5 w-5" />
     </button>
@@ -165,13 +161,13 @@ export default function Dashboard() {
           <History className="h-5 w-5" />
         </div>
         <div className="flex flex-col">
-          <h1 className="text-base sm:text-lg font-semibold text-white">
+          <h1 className="text-base sm:text-lg font-semibold text-black">
             Histórico de Prêmios
           </h1>
-          <p className="text-xs text-white/70">
+          <p className="text-xs text-black/70">
             Visualize os brindes recebidos no dia selecionado
           </p>
-          <p className="mt-1 inline-flex items-center gap-2 rounded-full bg-black/30 px-3 py-1 text-[11px] text-white/80 border border-white/10">
+          <p className="mt-1 inline-flex items-center gap-2 rounded-full bg-black/30 px-3 py-1 text-[11px] text-black/80 border border-white/10">
             <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
             Dia selecionado:{" "}
             <span className="font-medium">
@@ -183,14 +179,14 @@ export default function Dashboard() {
 
       {/* DatePicker estilizado */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-100">
+        <span className="text-xs text-black">
           Escolher data:
         </span>
-        <div className="z-50 rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-xs text-white shadow-inner">
+        <div className="z-50 rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-xs text-black shadow-inner">
          <DatePicker
   selected={dataSelecionada}
   onChange={(date) => setDataSelecionada(date)}
-  className="bg-transparent text-xs text-white focus:outline-none cursor-pointer"
+  className="bg-transparent text-xs text-black focus:outline-none cursor-pointer"
   dateFormat="dd/MM/yyyy"
   portalId="react-datepicker-portal"
 />
@@ -204,7 +200,7 @@ export default function Dashboard() {
   {/* Lista de prêmios do dia */}
   <section className="mt-6 rounded-2xl px-4 py-4">
     {historicoLoading ? (
-      <p className="py-6 text-center text-sm text-white/70">
+      <p className="py-6 text-center text-sm text-black/70">
         Carregando prêmios deste dia...
       </p>
     ) : historicoError ? (
@@ -212,7 +208,7 @@ export default function Dashboard() {
         {historicoError}
       </p>
     ) : historico.length === 0 ? (
-      <p className="py-6 text-center text-sm text-white/70">
+      <p className="py-6 text-center text-sm text-black/70">
         Nenhum brinde neste dia.
       </p>
     ) : (
@@ -232,7 +228,7 @@ export default function Dashboard() {
               ? "bg-amber-500/15 text-amber-200 border-amber-400/30"
               : item.status === "canceled"
               ? "bg-red-500/15 text-red-200 border-red-400/30"
-              : "bg-white/10 text-white/80 border-white/20";
+              : "bg-white/10 text-black/80 border-white/20";
 
           return (
             <li
@@ -250,10 +246,10 @@ export default function Dashboard() {
 
               {/* Infos */}
               <div className="flex flex-1 flex-col">
-                <span className="text-[11px] text-white/60">
+                <span className="text-[11px] text-black/60">
                   {dayjs(item.created_at).format("DD/MM/YYYY HH:mm")}
                 </span>
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold text-black">
                   {item.name_prize}
                 </span>
               </div>
@@ -287,11 +283,7 @@ export default function Dashboard() {
             <div
               className="absolute inset-0 "
             style={{
-        background: `
-    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
-    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
-    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
-  `
+        background: "white"
       }}
     
               onClick={() => setMenuOpen(false)}
@@ -303,9 +295,9 @@ export default function Dashboard() {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="relative z-10 h-full w-[85%] max-w-sm border-r border-white/10 backdrop-blur-xl p-5"
             >
-              <div className="mb-6 flex items-center justify-between">
+              <div className="mb-6 flex items-center justify-between text-black">
                 <div>
-                  <p className="text-xs text-white/70">
+                  <p className="text-xs text-black">
                     {user?.email || ""}
                   </p>
                   <p className="text-sm font-medium">
@@ -324,14 +316,14 @@ export default function Dashboard() {
               <nav className="space-y-2">
                 <button
                   onClick={() => go("/pages/user/dashboard")}
-                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left hover:bg-white/10"
+                  className="text-black flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left hover:bg-white/10"
                 >
                   <span>Dashboard</span>
                   <ChevronRight className="h-4 w-4 opacity-70" />
                 </button>
                 <button
                   onClick={() => go("/pages/user/historico")}
-                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left hover:bg-white/10"
+                  className="text-black flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left hover:bg-white/10"
                 >
                   <span>Histórico de Prêmios</span>
                   <ChevronRight className="h-4 w-4 opacity-70" />
@@ -344,7 +336,7 @@ export default function Dashboard() {
                     clearUserToken();
                     go("/pages/user/signIn");
                   }}
-                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left text-white hover:bg-white/10"
+                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left text-black hover:bg-white/10"
                 >
                   <span className="flex items-center gap-2">
                     <LogOut className="h-4 w-4" />

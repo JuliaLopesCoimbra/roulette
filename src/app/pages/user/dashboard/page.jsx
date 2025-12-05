@@ -387,11 +387,7 @@ ${canSpin
             <div
               className="absolute inset-0 "
             style={{
-        background: `
-    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
-    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
-    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
-  `
+         background:"white"
       }}
               onClick={() => setMenuOpen(false)}
             />
