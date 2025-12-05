@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { api } from "../../../../utils/api";
 import { setUserToken } from "../../../../utils/auth";
 
-export default function SignIn() {
+function SignInContent() {
   const router = useRouter();
   const sp = useSearchParams();
   const redirectTo = sp?.get("redirectTo") || "/pages/user/home";
@@ -149,5 +149,13 @@ export default function SignIn() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Carregando...</div>}>
+      <SignInContent />
+    </Suspense>
   );
 }
