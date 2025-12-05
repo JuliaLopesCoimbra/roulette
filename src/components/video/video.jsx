@@ -12,7 +12,8 @@ export default function VideoCenterPage({ videoSrc }) {
   const v = videoRef.current;
   if (!v) return;
 
-  v.muted = true; // autoplay permitido
+  // Necessário para autoplay
+  v.muted = true;
   v.playsInline = true;
 
   const tryPlay = () => {
@@ -20,24 +21,48 @@ export default function VideoCenterPage({ videoSrc }) {
       v.play().catch(() => {});
     }
   };
-
   tryPlay();
 
+  // --- HABILITAR SOM APÓS INTERAÇÃO ---
   const enableSound = () => {
-    v.muted = false;      // ativa áudio
+    v.muted = false;        // liga o som
     v.volume = 1.0;
     v.play().catch(() => {});
     window.removeEventListener("click", enableSound);
     window.removeEventListener("touchstart", enableSound);
   };
 
-  // Ativa áudio assim que o usuário interagir
   window.addEventListener("click", enableSound);
   window.addEventListener("touchstart", enableSound);
 
-  /* ... resto do seu código ... */
+  // --- QUANDO O VÍDEO ACABA ---
+  const onEnded = () => {
+    setHasEnded(true);
+    v.pause();
+    v.currentTime = v.duration || v.currentTime;
+    router.push("/pages/user/roulette");
+  };
+
+  // --- PROGRESSO DO VÍDEO ---
+  const onTimeUpdate = () => {
+    if (v.duration) {
+      setProgress((v.currentTime / v.duration) * 100);
+    }
+  };
+
+  // --- QUANDO USUÁRIO VOLTA PARA A ABA ---
+  const onVisibility = () => {
+    if (document.visibilityState === "visible") tryPlay();
+  };
+
+  v.addEventListener("ended", onEnded);
+  v.addEventListener("timeupdate", onTimeUpdate);
+  document.addEventListener("visibilitychange", onVisibility);
 
   return () => {
+    v.removeEventListener("ended", onEnded);
+    v.removeEventListener("timeupdate", onTimeUpdate);
+    document.removeEventListener("visibilitychange", onVisibility);
     window.removeEventListener("click", enableSound);
     window.removeEventListener("touchstart", enableSound);
   };
