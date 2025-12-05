@@ -22,7 +22,7 @@ export default function FavoriteHobbyDistribution() {
         data={data}
         theme={NIVO_DARK_THEME}
         margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-        colors={(node) => (node.data.color ? node.data.color : "#ffffff")}
+        colors={(node) => (node.data?.color as string) ?? "#ffffff"}
         padding={4}
         leavesOnly={true}
         enableLabels={true}
