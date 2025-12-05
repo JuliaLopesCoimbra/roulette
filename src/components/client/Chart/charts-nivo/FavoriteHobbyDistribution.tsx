@@ -35,7 +35,7 @@ export default function FavoriteHobbyDistribution() {
         enableLabels={true}
         label={(node) => node.id}
         labelTextColor="#ffffff"
-        labelSkipRadius={18}
+        labelsSkipRadius={18}
         borderWidth={2}
         borderColor="rgba(255,255,255,0.25)"
         colors={(node) => {
