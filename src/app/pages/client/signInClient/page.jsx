@@ -108,7 +108,7 @@ export default function ClientSignIn() {
                 type="email"
                 autoComplete="email"
                 placeholder="seu@email.com"
-                className="w-full rounded-xl bg-[#1b1f2a] text-black  border border-white/10 focus:border-[#fb4667] focus:outline-none px-3 py-2.5 transition"
+                className="w-full rounded-xl bg-gray-100 text-black  border border-white/10 focus:border-[#fb4667] focus:outline-none px-3 py-2.5 transition"
                 {...register("email", {
                   required: "Campo obrigatório",
                   pattern: { value: /\S+@\S+\.\S+/, message: "Email inválido" },
@@ -127,7 +127,7 @@ export default function ClientSignIn() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className="w-full rounded-xl bg-[#1b1f2a] text-black placeholder:text-black/40 border border-white/10 focus:border-[#fb4667] focus:outline-none px-3 py-2.5 transition pr-10"
+                  className="w-full rounded-xl bg-gray-100 text-black placeholder:text-black/40 border border-white/10 focus:border-[#fb4667] focus:outline-none px-3 py-2.5 transition pr-10"
                   {...register("password", { required: "Campo obrigatório" })}
                 />
                 <button

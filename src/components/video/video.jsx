@@ -8,49 +8,41 @@ export default function VideoCenterPage({ videoSrc }) {
   const [hasEnded, setHasEnded] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
+ useEffect(() => {
+  const v = videoRef.current;
+  if (!v) return;
 
-    // força autoplay
-    v.muted = true;
-    v.playsInline = true;
+  v.muted = true; // autoplay permitido
+  v.playsInline = true;
 
-    const tryPlay = () => {
-      if (!hasEnded && v.paused) {
-        v.play().catch(() => {});
-      }
-    };
-    tryPlay();
+  const tryPlay = () => {
+    if (!hasEnded && v.paused) {
+      v.play().catch(() => {});
+    }
+  };
 
-    const onEnded = () => {
-      setHasEnded(true);
-      // evita qualquer re-play acidental
-      v.pause();
-      // garante que o tempo pare no final (alguns browsers "loopam" para 0 por um frame)
-      v.currentTime = v.duration || v.currentTime;
-      router.push("/pages/user/roulette");
-    };
+  tryPlay();
 
-    const onTimeUpdate = () => {
-      if (v.duration) setProgress((v.currentTime / v.duration) * 100);
-    };
+  const enableSound = () => {
+    v.muted = false;      // ativa áudio
+    v.volume = 1.0;
+    v.play().catch(() => {});
+    window.removeEventListener("click", enableSound);
+    window.removeEventListener("touchstart", enableSound);
+  };
 
-    // Se o usuário voltar para a aba, tenta tocar apenas se não terminou
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") tryPlay();
-    };
+  // Ativa áudio assim que o usuário interagir
+  window.addEventListener("click", enableSound);
+  window.addEventListener("touchstart", enableSound);
 
-    v.addEventListener("ended", onEnded);
-    v.addEventListener("timeupdate", onTimeUpdate);
-    document.addEventListener("visibilitychange", onVisibility);
+  /* ... resto do seu código ... */
 
-    return () => {
-      v.removeEventListener("ended", onEnded);
-      v.removeEventListener("timeupdate", onTimeUpdate);
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, [router, hasEnded]);
+  return () => {
+    window.removeEventListener("click", enableSound);
+    window.removeEventListener("touchstart", enableSound);
+  };
+}, [router, hasEnded]);
+
 
   return (
     <div
@@ -71,7 +63,7 @@ export default function VideoCenterPage({ videoSrc }) {
         ref={videoRef}
         src={videoSrc}
         autoPlay
-        muted
+       
         playsInline
         disablePictureInPicture
         disableRemotePlayback
