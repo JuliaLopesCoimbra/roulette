@@ -65,7 +65,7 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
   return (
     <>
       <div className="absolute top-10 z-10">
-        <button onClick={() => router.back()} className="text-[#fb4667] hover:text-[#ff2f55]">
+        <button onClick={() => router.back()} className="text-[#f66b41] hover:text-[#ff2f55]">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                strokeWidth={2} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -82,7 +82,7 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
               /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)+$/.test(v?.trim() || "") ||
               "Digite seu nome completo (nome e sobrenome)",
           })}
-          className="w-full p-2 rounded-md bg-[#ffffff] text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
+          className="w-full p-2 rounded-md bg-gray-100 text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
           placeholder="Digite seu nome"
           autoComplete="off"
         />
@@ -97,7 +97,7 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
             validate: (v) => validarCPF(v) || "CPF inválido",
           })}
           onChange={(e) => setValue("cpf", formatCPF(e.target.value))}
-          className="w-full p-2 rounded-md bg-[#ffffff] text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
+          className="w-full p-2 rounded-md bg-gray-100 text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
           placeholder="000.000.000-00"
           autoComplete="off"
         />
@@ -111,7 +111,7 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
             required: "Campo obrigatório",
           })}
           onChange={(e) => setValue("celular", formatCelular(e.target.value))}
-          className="w-full p-2 rounded-md bg-[#ffffff] text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
+          className="w-full p-2 rounded-md bg-gray-100 text-black placeholder:text-[#bfbfbf] border border-transparent focus:border-[#fb4667] focus:outline-none"
           placeholder="(11) 9 8765-4321"
           autoComplete="off"
         />
@@ -134,7 +134,7 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
               return idade >= 18 || "Você precisa ter pelo menos 18 anos";
             },
           })}
-          className="w-full p-2 rounded-md bg-[#ffffff] text-black border border-transparent focus:border-[#fb4667] focus:outline-none"
+          className="w-full p-2 rounded-md bg-gray-100 text-black border border-transparent focus:border-[#fb4667] focus:outline-none"
         />
         {errors.nascimento && (
           <p className="text-[#ef4444] text-sm">{errors.nascimento.message}</p>
@@ -172,14 +172,14 @@ export default function Step1DadosPessoais({ step, setStep, router }) {
         <button
           type="button"
           onClick={handleNext}
-          className="px-4 py-2 bg-[#fb4667] text-white rounded hover:bg-[#fe385d] transition font-semibold disabled:opacity-60"
+          className="px-4 py-2 bg-[#f66b41] text-white rounded hover:bg-[#fe385d] transition font-semibold disabled:opacity-60"
           disabled={checkingCPF}
         >
           {checkingCPF ? "Verificando..." : "Avançar"}
         </button>
-        <p className="text-sm text-gray-200">
+        <p className="text-sm text-gray-500">
           Já tem login?{" "}
-          <a href="/pages/user/signIn" className="text-[#fb4667] font-semibold hover:underline">
+          <a href="/pages/user/signIn" className="text-[#f66b41] font-semibold hover:underline">
             Acesse sua conta
           </a>
         </p>

@@ -106,12 +106,7 @@ export default function CadastroFormUser() {
                 {...fadeIn(0)}
                 className="min-h-screen flex items-center justify-center px-4 font-[Roboto]"
               style={{
-  background: `
-    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
-    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
-    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
-    #000000
-  `
+  background: "white"
 }}
 
             >
@@ -119,7 +114,7 @@ export default function CadastroFormUser() {
 
                 {!showSuccess && (
                     <FormProvider {...methods}>
-                        <form onSubmit={submitHandler} className="space-y-4 w-full max-w-md text-white">
+                        <form onSubmit={submitHandler} className="space-y-4 w-full max-w-md text-black">
                             {step === 1 && (
                                 <Step1DadosPessoais step={step} setStep={setStep} router={router} />
                             )}

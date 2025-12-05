@@ -63,18 +63,13 @@ export default function HomeUser() {
   };
 
   return (
-    <div className="relative min-h-screen text-white">
+    <div className="relative min-h-screen text-black">
       {/* BG minimalista */}
       <div
         aria-hidden
         className="absolute inset-0"
        style={{
-  background: `
-    radial-gradient(1600px 900px at 15% 15%, rgba(var(--theme-pink), 0.70), transparent 70%),
-    radial-gradient(1300px 750px at 85% 25%, rgba(var(--theme-pink), 0.55), transparent 70%),
-    radial-gradient(1100px 650px at 50% 90%, rgba(var(--theme-pink), 0.45), transparent 70%),
-    #000000
-  `
+  background: "white"
 }}
 
       />
@@ -99,7 +94,7 @@ export default function HomeUser() {
           ) : (
             <>
               <div className="text-right">
-                <p className="text-xs/4 text-white/70">{user?.email}</p>
+                <p className="text-xs/4 text-black/70">{user?.email}</p>
                 <p className="text-sm font-medium">{user?.nome}</p>
               </div>
               <img
@@ -134,7 +129,7 @@ export default function HomeUser() {
                 <span className="text-base font-semibold">
                   {loading ? "Verificando..." : "Pré Roleta Lolla"}
                 </span>
-                <span className="mt-0.5 text-sm text-white/70">Aqueça e valide sua entrada</span>
+                <span className="mt-0.5 text-sm text-black/70">Aqueça e valide sua entrada</span>
               </div>
               <ChevronRight className="h-5 w-5 opacity-80 transition group-hover:translate-x-0.5" />
             </button>
@@ -146,20 +141,20 @@ export default function HomeUser() {
                   <span className="text-base font-semibold">Roleta Oficial</span>
                   <Lock className="h-4 w-4" aria-hidden />
                 </div>
-                <span className="mt-0.5 text-sm text-white/70">Em breve</span>
+                <span className="mt-0.5 text-sm text-black/70">Em breve</span>
               </div>
               <button
                 disabled
                 aria-disabled="true"
                 title="Em breve"
-                className="cursor-not-allowed rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80"
+                className="cursor-not-allowed rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-black/80"
               >
                 Indisponível
               </button>
             </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-between text-xs text-white/60">
+          <div className="mt-5 flex items-center justify-between text-xs text-black/60">
             <span>v1.0 • Lolla Experience</span>
             <span>Suporte • FAQ</span>
           </div>

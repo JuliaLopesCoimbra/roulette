@@ -96,13 +96,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="relative min-h-[100svh] md:min-h-[100dvh] text-white overflow-hidden "
+    <div className="relative min-h-[100svh] md:min-h-[100dvh] text-black overflow-hidden "
       style={{
-        background: `
-    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
-    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
-    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
-  `
+        background:"white"
       }}>
 
       <header className="relative z-10 mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">
@@ -124,13 +120,13 @@ export default function Dashboard() {
 
                 {/* Textos */}
                 <div className="flex flex-col">
-                  <p className="text-xs text-white/80">
+                  <p className="text-xs text-black/80">
                     Bem vindo de volta,
                   </p>
                   <p className="text-lg font-semibold leading-tight">
                     {user.nome}!
                   </p>
-                  <p className="mt-0.5 text-[11px] text-white/70">
+                  <p className="mt-0.5 text-[11px] text-black/70">
                     {user.email}
                   </p>
                 </div>
@@ -177,26 +173,24 @@ export default function Dashboard() {
     className="relative z-10 mt-6 flex flex-col items-center text-center"
     style={{
       background: `
-        radial-gradient(circle at top left, rgba(255,0,102,0.35), transparent 65%),
-        radial-gradient(circle at bottom right, rgba(255,90,150,0.35), transparent 65%),
-        linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
+      white
       `
     }}
   >
     {/* Tentativas restantes */}
-    <p className="text-sm text-white/70">Tentativas restantes</p>
+    <p className="text-sm text-black/70">Tentativas restantes</p>
 
-    <p className="mt-1 text-[68px] font-extrabold leading-none bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent drop-shadow-lg">
+    <p className="mt-1 text-[68px] font-extrabold leading-none bg-gradient-to-br from-black via-black/90 to-black/70 bg-clip-text text-transparent drop-shadow-lg">
       {dashboardLoading ? "—" : tentativasRestantes}
     </p>
 
-    <p className="text-xs text-white/60 -mt-1">
+    <p className="text-xs text-black/60 -mt-1">
       Máximo de {maxTentativas} giros por dia
     </p>
 
     {/* Próximo giro */}
     <div className="mt-6">
-      <p className="text-xs text-white/70 flex items-center justify-center gap-1">
+      <p className="text-xs text-black/70 flex items-center justify-center gap-1">
         <Clock className="h-3.5 w-3.5" />
         Próximo giro
       </p>
@@ -213,7 +207,7 @@ export default function Dashboard() {
 
     {/* Último prêmio */}
     <div className="mt-6">
-      <p className="text-xs text-white/70 flex items-center justify-center gap-1">
+      <p className="text-xs text-black/70 flex items-center justify-center gap-1">
         <Gift className="h-3.5 w-3.5" />
         Último prêmio
       </p>
@@ -225,7 +219,7 @@ export default function Dashboard() {
           <p className="mt-1 text-lg font-semibold">
             {lastPrize.name_prize}
           </p>
-          <p className="mt-0.5 text-xs text-white/60">
+          <p className="mt-0.5 text-xs text-black/60">
             {formatZ(lastPrize.created_at)} • Status:{" "}
             {STATUS_LABELS[lastPrize.status] || lastPrize.status}
           </p>
@@ -253,10 +247,11 @@ export default function Dashboard() {
       group relative inline-flex w-full max-w-sm items-center justify-between 
       rounded-full px-5 py-4 text-left transition
       
-      ${canSpin
-                ? "cursor-pointer bg-gradient-to-r from-[#ff4b82] via-[#fb4668] to-[#ff8ad4] hover:brightness-110"
-                : "cursor-not-allowed bg-white/10 opacity-60"
-              }
+${canSpin
+  ? "cursor-pointer bg-[#E5E5E5] hover:bg-[#D5D5D5]"
+  : "cursor-not-allowed bg-white/10 opacity-60"
+}
+
     `}
           >
             {/* brilho suave no botão */}
@@ -268,7 +263,7 @@ export default function Dashboard() {
               <p
                 className={`
           text-base font-extrabold tracking-wide
-          ${canSpin ? "text-white" : "text-white/80"}
+          ${canSpin ? "text-black" : "text-black/80"}
         `}
               >
                 {canSpin
@@ -280,7 +275,7 @@ export default function Dashboard() {
                       : "Indisponível"}
               </p>
 
-              <p className="mt-0.5 text-xs text-white/80">
+              <p className="mt-0.5 text-xs text-black/80">
                 Ganhe prêmios e acompanhe seu histórico
               </p>
             </div>
@@ -317,23 +312,23 @@ export default function Dashboard() {
               </div>
               <div className="flex flex-col">
                 <h2 className="text-sm font-semibold">Brindes de hoje</h2>
-                <p className="text-[11px] text-white/70">
+                <p className="text-[11px] text-black/70">
                   {todayPrizes.length} giro{todayPrizes.length === 1 ? "" : "s"} hoje
                 </p>
               </div>
             </div>
             <button
               onClick={() => router.push("/pages/user/historico")}
-              className="text-[11px] text-white/75 underline-offset-2 hover:underline"
+              className="text-[11px] text-black/75 underline-offset-2 hover:underline"
             >
               ver histórico completo
             </button>
           </div>
 
           {dashboardLoading ? (
-            <p className="text-white/70 text-sm">Carregando...</p>
+            <p className="text-black/70 text-sm">Carregando...</p>
           ) : todayPrizes.length === 0 ? (
-            <p className="text-white/75 text-sm">
+            <p className="text-black/75 text-sm">
               Você ainda não girou a roleta hoje.
             </p>
           ) : (
@@ -357,11 +352,11 @@ export default function Dashboard() {
                         />
                       </div>
                       {/* Horário */}
-                      <span className="text-[10px] text-white/60">
+                      <span className="text-[10px] text-black/60">
                         {formatZ(item.created_at)}
                       </span>
                       {/* Nome do prêmio */}
-                      <span className="max-w-[80px] truncate text-[11px] font-medium text-white">
+                      <span className="max-w-[80px] truncate text-[11px] font-medium text-black">
                         {item.name_prize}
                       </span>
                     </div>
@@ -409,7 +404,7 @@ export default function Dashboard() {
             >
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-white/70">
+                  <p className="text-xs text-black/70">
                     {user?.email || ""}
                   </p>
                   <p className="text-sm font-medium">
@@ -448,7 +443,7 @@ export default function Dashboard() {
                     clearUserToken();
                     go("/pages/user/signIn");
                   }}
-                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left text-white hover:bg-white/10"
+                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/30 px-4 py-3 text-left text-black hover:bg-white/10"
                 >
                   <span className="flex items-center gap-2">
                     <LogOut className="h-4 w-4" />

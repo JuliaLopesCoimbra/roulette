@@ -389,8 +389,7 @@ export default function Roulette3D() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6, delay },
   });
-
-  const handleSpin = () => {
+ const handleSpin = () => {
     if (!modelReady || isSpinning || loading || !marksCount) return;
 
     const tok = getUserToken();
@@ -480,6 +479,78 @@ export default function Roulette3D() {
       });
   };
 
+
+// const handleSpin = () => {
+//   if (!modelReady || isSpinning || loading || !marksCount) return;
+
+//   const tok = getUserToken();
+//   if (!tok) {
+//     router.replace("/pages/user/signIn?redirectTo=/pages/user/dashboard");
+//     return;
+//   }
+
+//   setIsSpinning(true);
+//   setLoading(true);
+
+//   try {
+//     // ---------------------------------------------------------
+//     // 🎯 1) Escolher setor aleatório (0 → prizeImages.length - 1)
+//     // ---------------------------------------------------------
+//     const randomSector = Math.floor(Math.random() * prizeImages.length);
+//     const selectedPrizeImage = prizeImages[randomSector];
+
+//     // ---------------------------------------------------------
+//     // 🎯 2) Localizar o prêmio baseado no nome do setor
+//     // ---------------------------------------------------------
+//     const matchedPrize = prizes.find(
+//       (p) => p.name_prize === selectedPrizeImage.name
+//     );
+
+//     // ---------------------------------------------------------
+//     // 🎯 3) Caso não encontre prêmio, trata como "não foi dessa vez"
+//     // ---------------------------------------------------------
+//     if (!matchedPrize || selectedPrizeImage.name === "Não foi dessa vez") {
+//       const loseBrand = "Não foi dessa vez";
+//       const loseImage =
+//         prizeImages.find((p) => p.name === loseBrand)?.image ||
+//         "/img/prizes/default.png";
+
+//       const loseSectorIndex = prizeImages.findIndex(
+//         (p) => p.name === loseBrand
+//       );
+
+//       setPendingPrize({
+//         prize_id: null,
+//         name_prize: loseBrand,
+//         image: loseImage,
+//       });
+
+//       const finalIndex = loseSectorIndex === -1 ? 0 : loseSectorIndex;
+
+//       setPendingSectorIndex(finalIndex);
+//       setTargetMark(finalIndex);
+//       setPlayTrigger((n) => n + 1);
+//       return;
+//     }
+
+//     // ---------------------------------------------------------
+//     // 🎯 4) Caso tenha prêmio válido, girar para esse setor
+//     // ---------------------------------------------------------
+//     setPendingPrize(matchedPrize);
+//     setPendingSectorIndex(randomSector);
+//     setTargetMark(randomSector);
+//     setPlayTrigger((n) => n + 1);
+
+//   } catch (err) {
+//     console.error("Erro ao girar roleta:", err);
+//     alert("Erro ao tentar girar a roleta.");
+//   } finally {
+//     setIsSpinning(false);
+//     setLoading(false);
+//   }
+// };
+
+
   const onSpinFinish = () => {
     setIsSpinning(false);
     setLoading(false);
@@ -524,11 +595,7 @@ export default function Roulette3D() {
     <div
       className="flex flex-col items-center justify-center min-h-screen z-20"
          style={{
-        background: `
-    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
-    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
-    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
-  `
+        background: "white"
       }}
     >
       <motion.div {...fadeIn(0)}>
@@ -542,7 +609,7 @@ export default function Roulette3D() {
         {/* Container da roleta */}
         <div className="relative flex flex-col items-center w-[55vh]">
           <img
-            src="/img/roulette/ponteiro.svg"
+            src="/img/roulette/ponteiro.png"
             alt="Ponteiro"
             className="absolute -top-8 left-1/2 -translate-x-1/2 z-[30] w-[68px] pointer-events-none select-none"
           />
@@ -587,11 +654,10 @@ export default function Roulette3D() {
   disabled={!modelReady || isSpinning || loading || !marksCount}
   className={`
     relative select-none tracking-wide font-semibold
-    px-10 py-4 rounded-xl text-xl
+    px-10 py-4 rounded-xl text-small
     text-white
-    bg-gradient-to-b from-[#ff4b6e] to-[#ff1f5a]
-    shadow-[0_0_25px_rgba(255,20,70,0.8),0_0_45px_rgba(255,70,120,0.6)]
-    border border-white/20
+   bg-[#f66b41]
+   
     transition-all duration-200
     ${isSpinning || loading ? "" : "hover:scale-110 hover:shadow-[0_0_35px_rgba(255,40,90,0.9),0_0_60px_rgba(255,90,130,0.8)]"}
     disabled:opacity-30 disabled:cursor-not-allowed

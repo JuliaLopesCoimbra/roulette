@@ -89,33 +89,29 @@ export default function SignIn() {
         {...fadeIn(0.15)}
         className="flex flex-col items-center justify-center px-6 py-12 backdrop-blur-xl"
         style={{
-        background: `
-    radial-gradient(circle at top left, rgba(255,0,102,0.7), transparent 60%),
-    radial-gradient(circle at bottom right, rgba(255,90,150,0.75), transparent 60%),
-    linear-gradient(135deg, #ff0059 0%, #fb4668 60%)
-  `
+        background: "white"
       }}
     >
         <div className="max-w-md w-full">
           <div className="flex justify-center mb-6">
             <img
-              src="/img/logo/adword.png"
+              src="/img/logo/logo-dverti.png"
               alt="Logo"
               className="h-15 opacity-95"
             />
           </div>
 
-          <h2 className="text-center text-2xl font-semibold mb-8 tracking-wide text-white">
+          <h2 className="text-center text-2xl font-semibold mb-8 tracking-wide text-black">
             Acesse sua conta
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
             <div>
-              <label className="text-sm text-gray-300">Email</label>
+              <label className="text-sm text-black">Email</label>
               <input
                 {...register("email", { required: "Campo obrigatório" })}
-                className="w-full p-3 rounded-lg bg-white/30 text-white placeholder:text-white border border-transparent focus:border-[#fb4667] focus:outline-none transition"
+                className="w-full p-3 rounded-lg bg-gray-100 text-black placeholder:text-black border border-transparent focus:border-[#fb4667] focus:outline-none transition"
                 placeholder="exemplo@email.com"
                 type="email"
               />
@@ -123,27 +119,28 @@ export default function SignIn() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-300">Senha</label>
+              <label className="text-sm text-black">Senha</label>
               <input
                 {...register("senha", { required: "Campo obrigatório" })}
-                className="w-full p-3 rounded-lg bg-white/30 text-white placeholder:text-white border border-transparent focus:border-[#fb4667] focus:outline-none transition"
+                className="w-full p-3 rounded-lg bg-gray-100 text-black placeholder:text-black border border-transparent focus:border-[#fb4667] focus:outline-none transition"
                 placeholder="••••••••"
                 type="password"
               />
               {errors.senha && <p className="text-red-400 text-sm">{errors.senha.message}</p>}
             </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-[#f7bbc6] to-[#e44864] hover:opacity-90 transition disabled:opacity-60"
-            >
-              {isSubmitting ? "Entrando..." : "Entrar"}
-            </button>
+         <button
+  type="submit"
+  disabled={isSubmitting}
+  className="w-full py-3 rounded-lg font-semibold text-white bg-[#f66b41] hover:opacity-90 transition disabled:opacity-60"
+>
+  {isSubmitting ? "Entrando..." : "Entrar"}
+</button>
 
-            <p className="text-sm text-white text-center mt-3">
+
+            <p className="text-sm text-black text-center mt-3">
               Não tem conta?{" "}
-              <a href="/pages/user/signUp" className="text-[#881026] font-semibold hover:underline">
+              <a href="/pages/user/signUp" className="text-[#f66b41] font-semibold hover:underline">
                 Registre-se
               </a>
             </p>
